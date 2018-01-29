@@ -11,7 +11,7 @@ var bienIciAggregator = new BienIciAggregator();
 var appartFilter = new AppartFilter(["fourche"]);
 
 // Serve client files
-app.use(express.static('public'));
+app.use(express.static('../app'));
 var server = app.listen(port, () => {
     console.log('AggregAppart is running at localhost:' + port);
 });

@@ -45,26 +45,22 @@ Vue.component('app-body', {
 
   methods: {
     fetchAnnonces: function() {
-      this.apparts = [{
-          title: "mon appart trop bi1",
-          description:"yolo",
-          departement: "Parsi 17 yop",
-          photos: [],
-          price: 886,
-          adCreatedByPro: true,
-          district: "paris 17 yoyo",
-          surfaceArea: 35,
-      },
-      {
-          title: "mon appart trop cher",
-          description:"yolo 2",
-          departement: "Parsi 18 yeop",
-          photos: [],
-          price: 887,
-          adCreatedByPro: false,
-          district: "paris 18 yoeyeo",
-          surfaceArea: 32,
-      }];
+      console.log("fetching apparts");
+      this.$http.get('api/apparts').then(
+        response => {
+          if (response.status == 200)
+          {
+            this.apparts = response.body;
+          }
+          else
+          {
+            console.error(JSON.stringify(response));
+            this.apparts = [];
+          }
+        }, response => {
+            console.error(JSON.stringify(response));
+            this.apparts = [];
+        });
     }
   }
 });
@@ -74,10 +70,19 @@ Vue.component('annonce', {
   template: `
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{{annonce.title}}</h3>
+        <a v-bind:href="annonce.url" target="_blank" style="color: white;">
+          <h3 class="panel-title">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m²</h3>
+        </a>
     </div>
     <div class="panel-body">
-        <p>{{annonce.description}}</p>
+        <div class="col-xs-6">
+          <p>{{annonce.description}}</p>
+        </div>
+        <div class="col-xs-6" style="overflow-x: scroll; overflow-y: hidden; height: 220px;">
+          <div style="width: max-content;">
+            <img v-for="photo in annonce.photos" v-bind:src="photo.url" style="margin-left: 10px;margin-right: 10px;height: 200px;float:left;"></img>
+          </div>
+        </div>
     </div>
 </div>`
 });

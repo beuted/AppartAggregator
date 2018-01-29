@@ -21,6 +21,7 @@ module.exports = class BienIciAggregator {
                             adCreatedByPro: resp.realEstateAds[i].adCreatedByPro,
                             district: resp.realEstateAds[i].district.name,
                             surfaceArea: resp.realEstateAds[i].surfaceArea,
+                            url: `https://www.bienici.com/annonce/location/${resp.realEstateAds[i].city.replace(' ', '-')}/appartement/${resp.realEstateAds[i].roomsQuantity}pieces/${resp.realEstateAds[i].id}`
                         });
                     }
                 }
