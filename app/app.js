@@ -13,9 +13,7 @@ Vue.component('app-bar', {
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a onclick="DApp.RefreshUI()">Refresh UI</a></li>
-          <li><a href="#fulfill">Fulfill promise</a></li>
-          <li><a href="#admin">Administer</a></li>
+          <li><a href="#yop">Yop</a></li>
         </ul>
       </div>
     </div>
@@ -71,7 +69,7 @@ Vue.component('annonce', {
 <div class="panel panel-primary">
     <div class="panel-heading">
         <a v-bind:href="annonce.url" target="_blank" style="color: white;">
-          <h3 class="panel-title">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m²</h3>
+          <h3 class="panel-title">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</h3>
         </a>
     </div>
     <div class="panel-body">
@@ -80,7 +78,7 @@ Vue.component('annonce', {
         </div>
         <div class="col-xs-6" style="overflow-x: scroll; overflow-y: hidden; height: 220px;">
           <div style="width: max-content;">
-            <img v-for="photo in annonce.photos" v-bind:src="photo.url" style="margin-left: 10px;margin-right: 10px;height: 200px;float:left;"></img>
+            <img v-for="photo in annonce.photos" v-bind:src="photo" style="margin-left: 10px;margin-right: 10px;height: 200px;float:left;"></img>
           </div>
         </div>
     </div>
