@@ -1,5 +1,8 @@
 # Aggregator d'appart
 
+* run `node index.js` in the server folder
+* Go to http://localhost:3000
+
 TODO:
 
 * Front decent
