@@ -13,6 +13,7 @@ module.exports = class BienIciAggregator {
                 if (resp.realEstateAds && resp.realEstateAds.length) {
                     for (var i = 0; i < resp.realEstateAds.length; i++) {
                         apparts.push({
+                            title: resp.realEstateAds[i].title,
                             description: resp.realEstateAds[i].description,
                             departement: resp.realEstateAds[i].city,
                             photos: resp.realEstateAds[i].photos,

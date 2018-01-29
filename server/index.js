@@ -33,5 +33,3 @@ app.get("/api/apparts", async function(req, res) {
     var filteredApparts = appartFilter.Filter(apparts);
     res.status(200).send(filteredApparts);
 });
-
-
