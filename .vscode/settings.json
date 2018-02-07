@@ -1,0 +1,9 @@
+// Placez vos paramètres dans ce fichier pour remplacer les paramètres par défaut et les paramètres utilisateur.
+{
+    "files.exclude": {
+        "node_modules/": true,
+        ".tscache/": true,
+        "server/**/*.js": true,
+        "server/**/*.js.map": true
+    }
+}

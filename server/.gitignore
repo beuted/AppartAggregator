@@ -1,1 +1,5 @@
 node_modules
+server/**/*.js.map
+server/**/*.js
+server/*.js.map
+server/*.js

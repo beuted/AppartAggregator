@@ -2,7 +2,9 @@
 
 Fait en moins de 24h à fond les ballons le code est hardcore
 
-* run `node index.js` in the server folder
+* `> npm install -g tsc`
+* `> tsc` in the server folder
+* `> node index.js`
 * Go to http://localhost:3000
 
 ## TODO:

@@ -1,17 +1,20 @@
-let request = require('request');
-const { JSDOM } = require('jsdom');
+import * as request from 'request';
+import { JSDOM } from 'jsdom';
+import { IAppart } from '../models/IAppart';
 
-module.exports = class SeLogerAggregator {
+export  class SeLogerAggregator {
+    private AnnoncesSearchUrl: string;
+
     constructor() {
         this.AnnoncesSearchUrl = 'http://www.seloger.com/list.htm?ci=750102,750104,750108,750109,750110,750117,750118,750119,750120&idtt=1&idtypebien=1,2&naturebien=1&nb_pieces=2&pxmax=1000&surfacemin=30&tri=initial';
     }
 
-    GetDetailUrl(id) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
+    private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
 
-    async GetAppartments() {
-        return new Promise((resolve, reject) => {
+    public async GetAppartments(): Promise<IAppart[]> {
+        return new Promise<IAppart[]>((resolve, reject) => {
             request(this.AnnoncesSearchUrl, async (error, response, body) => {
-                let annonces = [];
+                let apparts: IAppart[] = [];
                 const dom = new JSDOM(body);
                 let resultats = dom.window.document.querySelector(".liste_resultat").querySelectorAll('.c-pa-list');
 
@@ -22,7 +25,7 @@ module.exports = class SeLogerAggregator {
                     );
                     let id = resultats[i].getAttribute('data-listing-id');
                     let annonceJs = await this.GetAnnonceJs(id);
-                    annonces.push({
+                    apparts.push({
                         title: annonce.title,
                         description: annonceJs.description,
                         departement: annonce.departement,
@@ -36,13 +39,13 @@ module.exports = class SeLogerAggregator {
                     });
                 }
 
-                resolve(annonces);
+                resolve(apparts);
             });
         });
     }
 
-    async GetAnnonce(url) {
-        return new Promise((resolve, reject) => {
+    async GetAnnonce(url: string): Promise<IAppart> {
+        return new Promise<IAppart>((resolve, reject) => {
             request(url, (error, response, body) => {
                 const dom = new JSDOM(body);
                 let resume = dom.window.document.querySelector(".resume");
@@ -53,11 +56,11 @@ module.exports = class SeLogerAggregator {
 
                 let photosDoms = dom.window.document.querySelectorAll('.carrousel_slide');
 
-                let photos = [];
+                let photos: string[] = [];
 
                 // Last slide is some seloger shit
                 for (let i =0; i < photosDoms.length - 1; i++) {
-                    let bgImg = photosDoms[i].style["background-image"]
+                    let bgImg = (<any>photosDoms[i]).style["background-image"]
                     if (bgImg) {
                         photos.push(bgImg.substring(4, bgImg.length-1));
                     } else {
@@ -68,20 +71,25 @@ module.exports = class SeLogerAggregator {
                 }
 
                 resolve({
-                    title: "TITLE PLACEHOLDER",
+                    title: "TITLE PLACEHOLDER", //TODO
                     departement: departement,
                     photos: photos,
-                    surfaceArea: surfaceArea,
-                    url: url
+                    surfaceArea: Number(surfaceArea),
+                    url: url,
+                    description: undefined,        
+                    price: undefined,
+                    adCreatedByPro: undefined,
+                    id: undefined,
+                    origin: undefined
                 });
             });
         });
     }
 
-    async GetAnnonceJs(id) {
-         return new Promise((resolve, reject) => {
+    async GetAnnonceJs(id: string): Promise<IAppart> {
+         return new Promise<IAppart>((resolve, reject) => {
             request(this.GetDetailUrl(id), (error, response, body) => {
-                let resp;
+                let resp: any;
                 try {
                     resp = JSON.parse(body);
                 } catch(e) {
@@ -91,6 +99,14 @@ module.exports = class SeLogerAggregator {
                 resolve({
                     description: resp.descriptif,
                     price: resp.infos_acquereur.prix.prix,
+                    title:  undefined,
+                    departement:  undefined,
+                    photos:  undefined,
+                    surfaceArea:  undefined,
+                    url:  undefined,
+                    adCreatedByPro: undefined,
+                    id: undefined,
+                    origin: undefined
                 });
             });
         });
