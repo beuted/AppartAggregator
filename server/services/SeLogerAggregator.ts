@@ -1,8 +1,9 @@
 import * as request from 'request';
 import { JSDOM } from 'jsdom';
 import { IAppart } from '../models/IAppart';
+import { IAggregator } from './IAggregator';
 
-export  class SeLogerAggregator {
+export  class SeLogerAggregator implements IAggregator {
     private AnnoncesSearchUrl: string;
 
     constructor() {
@@ -16,30 +17,38 @@ export  class SeLogerAggregator {
             request(this.AnnoncesSearchUrl, async (error, response, body) => {
                 let apparts: IAppart[] = [];
                 const dom = new JSDOM(body);
-                let resultats = dom.window.document.querySelector(".liste_resultat").querySelectorAll('.c-pa-list');
+                try {
+                    let resultats = dom.window.document.querySelector('.liste_resultat').querySelectorAll('.c-pa-list');
 
-                for (let i = 0; i < resultats.length; i++) {
-                    //TODO: parallelise
-                    let annonce = await this.GetAnnonce(
-                        resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
-                    );
-                    let id = resultats[i].getAttribute('data-listing-id');
-                    let annonceJs = await this.GetAnnonceJs(id);
-                    apparts.push({
-                        title: annonce.title,
-                        description: annonceJs.description,
-                        departement: annonce.departement,
-                        photos: annonce.photos,
-                        price: annonceJs.price,
-                        adCreatedByPro: true,
-                        surfaceArea: annonce.surfaceArea,
-                        url: annonce.url,
-                        id: id,
-                        origin: 'SeLoger'
-                    });
+                    for (let i = 0; i < resultats.length; i++) {
+                        //TODO: parallelise 
+                        let annonce = await this.GetAnnonce(
+                            resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
+                        );
+                        if (!annonce)
+                            break;
+                        let id = resultats[i].getAttribute('data-listing-id');
+                        let annonceJs = await this.GetAnnonceJs(id);
+                        apparts.push({
+                            title: annonce.title,
+                            description: annonceJs.description,
+                            departement: annonce.departement,
+                            photos: annonce.photos,
+                            price: annonceJs.price,
+                            adCreatedByPro: true,
+                            surfaceArea: annonce.surfaceArea,
+                            url: annonce.url,
+                            id: id,
+                            origin: 'SeLoger'
+                        });
+                    }
+
+                    resolve(apparts);
+                } catch(e) {
+                    console.log(e)
+                    console.log(this.AnnoncesSearchUrl)
+                    resolve([]);
                 }
-
-                resolve(apparts);
             });
         });
     }
@@ -47,41 +56,47 @@ export  class SeLogerAggregator {
     async GetAnnonce(url: string): Promise<IAppart> {
         return new Promise<IAppart>((resolve, reject) => {
             request(url, (error, response, body) => {
-                const dom = new JSDOM(body);
-                let resume = dom.window.document.querySelector(".resume");
+                try {
+                    const dom = new JSDOM(body);
+                    let resume = dom.window.document.querySelector(".resume");
 
-                let departement = resume.querySelector('.localite').textContent;
-                //let price = resume.querySelector(".price").textContent.replace(/\s/g, '').split('€')[0];
-                let surfaceArea = resume.querySelector('.criterion').querySelectorAll('li')[2].textContent.replace(/\s/g, '').split('m')[0];
+                    let departement = resume.querySelector('.localite').textContent;
+                    //let price = resume.querySelector(".price").textContent.replace(/\s/g, '').split('€')[0];
+                    let surfaceArea = resume.querySelector('.criterion').querySelectorAll('li')[2].textContent.replace(/\s/g, '').split('m')[0];
 
-                let photosDoms = dom.window.document.querySelectorAll('.carrousel_slide');
+                    let photosDoms = dom.window.document.querySelectorAll('.carrousel_slide');
 
-                let photos: string[] = [];
+                    let photos: string[] = [];
 
-                // Last slide is some seloger shit
-                for (let i =0; i < photosDoms.length - 1; i++) {
-                    let bgImg = (<any>photosDoms[i]).style["background-image"]
-                    if (bgImg) {
-                        photos.push(bgImg.substring(4, bgImg.length-1));
-                    } else {
-                        let dataLazyAttr = photosDoms[i].getAttribute('data-lazy');
-                        let dataLazyAttrObj = JSON.parse(dataLazyAttr)
-                        photos.push(dataLazyAttrObj.url);
+                    // Last slide is some seloger shit
+                    for (let i =0; i < photosDoms.length - 1; i++) {
+                        let bgImg = (<any>photosDoms[i]).style["background-image"]
+                        if (bgImg) {
+                            photos.push(bgImg.substring(4, bgImg.length-1));
+                        } else {
+                            let dataLazyAttr = photosDoms[i].getAttribute('data-lazy');
+                            let dataLazyAttrObj = JSON.parse(dataLazyAttr)
+                            photos.push(dataLazyAttrObj.url);
+                        }
                     }
+               
+                    resolve({
+                        title: "TITLE PLACEHOLDER", //TODO
+                        departement: departement,
+                        photos: photos,
+                        surfaceArea: Number(surfaceArea),
+                        url: url,
+                        description: undefined,        
+                        price: undefined,
+                        adCreatedByPro: undefined,
+                        id: undefined,
+                        origin: undefined
+                    });
+                } catch(e) {
+                    console.log(e);
+                    resolve(null);
                 }
 
-                resolve({
-                    title: "TITLE PLACEHOLDER", //TODO
-                    departement: departement,
-                    photos: photos,
-                    surfaceArea: Number(surfaceArea),
-                    url: url,
-                    description: undefined,        
-                    price: undefined,
-                    adCreatedByPro: undefined,
-                    id: undefined,
-                    origin: undefined
-                });
             });
         });
     }
