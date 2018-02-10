@@ -22,9 +22,16 @@ export class AppartCache {
 
     private async refeshCache() {
         let apparts: IAppart[] = [];
+        let getAppartPromises: Promise<IAppart[]>[] = [];
         for (let i = 0; i < this.listAggregators.length; i++) {
-            let newApparts = await this.listAggregators[i].GetAppartments();
-            apparts = apparts.concat(newApparts);
+            getAppartPromises.push(this.listAggregators[i].GetAppartments());
+        }
+
+        // Hit all aggregator in parrallel
+        var promiseResponses = await Promise.all(getAppartPromises);
+
+        for (let i = 0; i < this.listAggregators.length; i++) {
+            apparts = apparts.concat(promiseResponses[i]);
         }
 
         for (let i = 0; i < this.listFilters.length; i++) {

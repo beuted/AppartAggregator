@@ -2,15 +2,18 @@ import * as request from 'request';
 import { JSDOM } from 'jsdom';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
+import { RateLimitor } from './RateLimitor';
 
 export class PapAggregator implements IAggregator {
     private _annoncesSearchUrl: string;
     private _customHeaderRequest: any;
+    private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
-    private _lastApiCall: number = 0;
-    private _maxQPS: number = 1;
 
     constructor() {
+        var maxQPS = 1;
+        this._rateLimitor = new RateLimitor(maxQPS);
+
         this._annoncesSearchUrl = 'https://www.pap.fr/annonce/locations-paris-2e-g37769g37771g37775g37776g37777g37784g37785g37786g37787-jusqu-a-1000-euros-a-partir-de-30-m2';
         this._customHeaderRequest = {
             headers: {
@@ -34,25 +37,11 @@ export class PapAggregator implements IAggregator {
         return (<any>Object).values(this._apparts);
     }
 
-    private async WaitAndQuery<T>(f: () => Promise<T>): Promise<T> {
-        const nextpermitedCallTime = this._lastApiCall + 1000 / this._maxQPS;
-        if (Date.now() < nextpermitedCallTime) {
-            await this.Sleep(nextpermitedCallTime - Date.now());
-        }
-        
-        this._lastApiCall = Date.now();
-        return await f();
-    }
-
-    private async Sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     private async RefreshAppartments() {
-        let newAppartIds = await this.WaitAndQuery(() => this.GetAppartmentsIds());
+        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
         for (let i=0; i < newAppartIds.length; i++) {
             if (!this._apparts[newAppartIds[i]]) {
-                this._apparts[newAppartIds[i]] = await this.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
             }
         }
     }

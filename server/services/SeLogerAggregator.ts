@@ -2,16 +2,19 @@ import * as request from 'request';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
+import { RateLimitor } from './RateLimitor';
 
 export  class SeLogerAggregator implements IAggregator {
     private _annoncesSearchUrl: string;
     private _customHeaderRequest: any;
     private _virtualConsole: VirtualConsole;
+    private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
-    private _lastApiCall: number = 0;
-    private _maxQPS: number = 0.1;
 
     constructor() {
+        var maxQPS = 0.1;
+        this._rateLimitor = new RateLimitor(maxQPS);
+
         this._virtualConsole = new VirtualConsole();
         this._virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
@@ -34,16 +37,6 @@ export  class SeLogerAggregator implements IAggregator {
         setTimeout(() => this.RefreshAppartments(), 30000)
     }
 
-    private async WaitAndQuery<T>(f: () => Promise<T>): Promise<T> {
-        const nextpermitedCallTime = this._lastApiCall + 1000 / this._maxQPS;
-        if (Date.now() < nextpermitedCallTime) {
-            await this.Sleep(nextpermitedCallTime - Date.now());
-        }
-        
-        this._lastApiCall = Date.now();
-        return await f();
-    }
-
     public GetAppartments(): Promise<IAppart[]>{
         return (<any>Object).values(this._apparts);
     }
@@ -51,15 +44,15 @@ export  class SeLogerAggregator implements IAggregator {
     private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
 
     private async RefreshAppartments() {
-        let newAppartIds = await this.WaitAndQuery(() => this.GetAppartmentsIds());
+        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
         for (let i=0; i < newAppartIds.length; i++) {
             if (!this._apparts[newAppartIds[i]]) {
-                this._apparts[newAppartIds[i]] = await this.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
             }
         }
     }
 
-    private async GetAppartmentsIds(): Promise<string[]> {
+    protected async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             request(this._annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
@@ -179,9 +172,5 @@ export  class SeLogerAggregator implements IAggregator {
                 }
             });
         });
-    }
-
-    private async Sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
