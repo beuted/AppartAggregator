@@ -9,9 +9,12 @@ Fait en moins de 24h à fond les ballons le code est hardcore
 
 ## TODO:
 
-* SeLoger + BienIci : gerer la pagination
-* Ajouter Pap et LBC
-* update du front via polling ou socket.io
+* SeLoger + BienIci + PaP : gerer la pagination
+* Ajouter LBC
+* Update du front via polling ou socket.io
 * Envoyer plus de requests en parallele
-* Mettre du caching sur SeLoger (On choppe la liste des Ids, si ya pas de nouvelles annonces pas besoin de requery tout)
+* Permettre de deny des offres
+* Ameliorer les filtres
+* Rendre configurable
 * BONUS: Placer les apparts sur une carte
+

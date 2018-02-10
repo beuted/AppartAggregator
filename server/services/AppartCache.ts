@@ -13,7 +13,7 @@ export class AppartCache {
 
         this.refeshCache();
         // Refresh the cache every 30 secs
-        setInterval(this.refeshCache, 30000);
+        setInterval(() => this.refeshCache(), 1000);
     }
 
     public GetApparts() {
