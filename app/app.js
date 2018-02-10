@@ -31,14 +31,14 @@ Vue.component('app-body', {
     <annonce v-for="item in apparts" v-bind:annonce="item"></annonce>
   </div>`,
 
+  mounted: function () {
+      this.fetchAnnonces();
+  },
+
   data: function() {
     return {
       apparts: []
     }
-  },
-
-  mounted: function () {
-      this.fetchAnnonces();
   },
 
   methods: {
@@ -68,11 +68,11 @@ Vue.component('annonce', {
   template: `
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <a v-bind:href="annonce.url" target="_blank" style="color: white;">
-          <h3 class="panel-title">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</h3>
-        </a>
+        <h3 class="panel-title">
+          <a v-bind:href="annonce.url" target="_blank" style="color: white;">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
+          <button style="float:right;" v-on:click="excludeId(annonce.id)">X</button></h3>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" v-bind:style="{ display: isExcluded ? 'none' : 'block' }">
         <div class="col-xs-6">
           <p>{{annonce.description}}</p>
         </div>
@@ -82,7 +82,19 @@ Vue.component('annonce', {
           </div>
         </div>
     </div>
-</div>`
+</div>`,
+  data: function() {
+    return {
+      isExcluded: false
+    }
+  },
+
+  methods: {
+    excludeId: function(id) {
+      this.isExcluded = !this.isExcluded;
+      this.$http.post(`/api/apparts/filter-id/${id}`, { value: this.isExcluded });    
+    }
+  }
 });
 
 new Vue({

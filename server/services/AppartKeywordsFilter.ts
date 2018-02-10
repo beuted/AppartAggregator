@@ -1,14 +1,14 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
 
-export class AppartFilter implements IFilter {
-    private DescExcludedKeywords: string[];
+export class AppartKeywordsFilter implements IFilter {
+    private _descExcludedKeywords: string[];
 
     constructor(descExcludedKeywords: string[]) {
-        this.DescExcludedKeywords = descExcludedKeywords || []; // lower case
+        this._descExcludedKeywords = descExcludedKeywords || []; // lower case
     }
 
-    Filter(apparts: IAppart[]): IAppart[] {
+    public Filter(apparts: IAppart[]): IAppart[] {
         var filteredApparts : IAppart[] = [];
 
         for (var i = 0; i < apparts.length; i++) {
@@ -21,9 +21,9 @@ export class AppartFilter implements IFilter {
     }
 
 
-    IsAppartValid(appart: IAppart) {
-        for (var i = 0; i < this.DescExcludedKeywords.length; i++) {
-            if (appart.description && appart.description.toLowerCase().includes(this.DescExcludedKeywords[i])) {
+    private IsAppartValid(appart: IAppart) {
+        for (var i = 0; i < this._descExcludedKeywords.length; i++) {
+            if (appart.description && appart.description.toLowerCase().includes(this._descExcludedKeywords[i])) {
                 return false;
             }
         }

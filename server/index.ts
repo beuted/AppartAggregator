@@ -6,7 +6,8 @@ import { AppartCache } from './services/AppartCache';
 import { BienIciAggregator }  from './services/BienIciAggregator';
 import { SeLogerAggregator } from './services/SeLogerAggregator';
 import { PapAggregator } from './services/PapAggregator';
-import { AppartFilter } from './services/AppartFilter';
+import { AppartKeywordsFilter } from './services/AppartKeywordsFilter';
+import { AppartIdsFilter } from './services/AppartIdsFilter';
 
 require('source-map-support').install(); // For .js.map's
 process.on('unhandledRejection', console.log); // Better logging in promises
@@ -21,8 +22,10 @@ const port = process.env['PORT'] || 3000;
 const bienIciAggregator = new BienIciAggregator();
 const seLogerAggregator = new SeLogerAggregator();
 const papAggregator = new PapAggregator();
-const appartFilter = new AppartFilter(["fourche"]);
-const appartCache = new AppartCache([bienIciAggregator, seLogerAggregator, papAggregator], [appartFilter]);
+const appartKeywordsFilter = new AppartKeywordsFilter(["fourche"]);
+const appartIdsFilter = new AppartIdsFilter(["orpi-1-00604802SDZF"]);
+
+const appartCache = new AppartCache([bienIciAggregator, seLogerAggregator, papAggregator], [appartKeywordsFilter, appartIdsFilter]);
     
 // Serve client files
 app.use(express.static('../app'));
@@ -60,4 +63,11 @@ app.get("/api/apparts/bienici", async (req, res) => {
 app.get("/api/apparts/pap", async (req, res) => {
     let apparts = await papAggregator.GetAppartments()
     res.status(200).send(apparts);
+});
+
+app.post("/api/apparts/filter-id/:id", (req, res) => {
+    var id: string = req.params.id;
+    var value: boolean = req.body.value;
+    appartIdsFilter.Set(id, value);
+    res.status(200).send();
 });
