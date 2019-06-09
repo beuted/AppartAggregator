@@ -97,5 +97,8 @@ async function Init() {
         res.status(200).send(config);
     });
 
-
+    app.post("/api/apparts/config/excluded-keyword", async (req, res) => {
+        let config = await appartKeywordsFilter.Set(req.body.keyword, req.body.excluded);
+        res.status(200).send(config);
+    });
 }

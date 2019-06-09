@@ -26,7 +26,6 @@ export class AppartCache {
     }
 
     private async RefreshCache() {
-        let apparts: IAppart[] = [];
         let getAppartPromises: Promise<IAppart[]>[] = [];
         //TODO: pas besoin de chopper les apparts qu'on connait deja et ceux qu'on a blacklistés.
         for (let i = 0; i < this._listAggregators.length; i++) {
@@ -37,15 +36,13 @@ export class AppartCache {
         var promiseResponses = await Promise.all(getAppartPromises);
 
         for (let i = 0; i < this._listAggregators.length; i++) {
-            apparts = apparts.concat(promiseResponses[i]);
+            // Only push the one you don't know yet based on the Id
+            this._apparts = this._apparts.concat(promiseResponses[i].filter(x => this._apparts.findIndex(appart => appart.id == x.id) == -1));
         }
 
         this.ApplyFilters();
 
-        if (JSON.stringify(apparts) != JSON.stringify(this._apparts))
-            storage.setItem('apparts', apparts);
-
-        this._apparts = apparts;
+        storage.setItem('apparts', this._apparts);
 
         setTimeout(() => this.RefreshCache(), this._refreshPeriod);
     }

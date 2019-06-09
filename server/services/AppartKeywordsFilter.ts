@@ -13,7 +13,18 @@ export class AppartKeywordsFilter implements IFilter {
         this._descExcludedKeywords = await storage.getItem('excludedKeywords') || [];
     }
 
-    // TODO: Set method
+    public Set(id: string, value: boolean) {
+        var idPosInArray = this._descExcludedKeywords.indexOf(id);
+        if (idPosInArray == -1 && !!value) {
+            console.log(`Excluding appart keyword: ${id}`);
+            this._descExcludedKeywords.push(id);
+        } else if (idPosInArray != -1 && !value) {
+            console.log(`Stop excluding appart keyword: ${id}`);
+            this._descExcludedKeywords.splice(idPosInArray, 1);
+        }
+
+        storage.setItem('excludedKeywords', this._descExcludedKeywords);
+    }
 
     public Filter(apparts: IAppart[]): IAppart[] {
         var filteredApparts : IAppart[] = [];

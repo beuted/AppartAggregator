@@ -2,15 +2,22 @@
   <div>
     <fixed-header :threshold="100">
       <div class="navbar">
-        <div class="navbar-title">Appart aggregator <span class="navbar-counter">{{apparts.length}}</span>
+        <div class="navbar-title">
+          Appart aggregator
+          <span class="navbar-counter">{{apparts.length}}</span>
         </div>
         <button class="navbar-validate" v-on:click="fetchAnnonces()">
           Validate
           <i class="fa fa-refresh" aria-hidden="true"></i>
         </button>
+        <button class="navbar-validate" v-on:click="toggleConfig()">
+          Config
+          <i class="fa fa-cog" aria-hidden="true"></i>
+        </button>
       </div>
     </fixed-header>
     <div class="container">
+      <config v-if="showConfig"></config>
       <annonce v-for="annonce in apparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
     </div>
   </div>
@@ -18,6 +25,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import Config from './components/Config.vue';
 import Annonce from './components/Annonce.vue';
 import FixedHeader from 'vue-fixed-header'
 
@@ -25,35 +33,40 @@ import FixedHeader from 'vue-fixed-header'
   components: {
     FixedHeader,
     Annonce,
+    Config,
   },
 })
 export default class App extends Vue {
   public apparts: any[] = [];
+  public showConfig: boolean = false;
 
   public mounted() {
       this.fetchAnnonces();
   }
 
+  public toggleConfig() {
+    this.showConfig = !this.showConfig;
+  }
+
   public fetchAnnonces() {
-    console.log("validate")
-      this.$http.get('/api/apparts').then(
-        response => {
-          if (response.status == 200)
-          {
-            this.apparts = response.data;
-            console.log(response.data);
-          }
-          else
-          {
-            console.error(JSON.stringify(response));
-            this.apparts = [];
-          }
-        }, response => {
-            console.error(JSON.stringify(response));
-            this.apparts = [];
-        });
+    this.$http.get('/api/apparts').then(
+      response => {
+        if (response.status == 200)
+        {
+          this.apparts = response.data;
+          console.log(response.data);
+        }
+        else
+        {
+          console.error(JSON.stringify(response));
+          this.apparts = [];
+        }
+      }, response => {
+          console.error(JSON.stringify(response));
+          this.apparts = [];
+      });
     }
-}
+  }
 </script>
 
 <style lang="scss">
