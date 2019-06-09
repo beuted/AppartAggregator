@@ -6,7 +6,7 @@
         </div>
         <button class="navbar-validate" v-on:click="fetchAnnonces()">
           Validate
-          <i class="fa fa-check" aria-hidden="true"></i>
+          <i class="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>
     </fixed-header>
