@@ -11,16 +11,16 @@ export class AppartCache {
         this.listAggregators = listAggregators;
         this.listFilters = listFilters;
 
-        this.refeshCache();
+        this.refreshCache();
         // Refresh the cache every 30 secs
-        setInterval(() => this.refeshCache(), 1000);
+        setInterval(() => this.refreshCache(), 1000);
     }
 
     public GetApparts() {
         return this.apparts;
     }
 
-    private async refeshCache() {
+    private async refreshCache() {
         let apparts: IAppart[] = [];
         let getAppartPromises: Promise<IAppart[]>[] = [];
         for (let i = 0; i < this.listAggregators.length; i++) {
@@ -37,7 +37,7 @@ export class AppartCache {
         for (let i = 0; i < this.listFilters.length; i++) {
             apparts = this.listFilters[i].Filter(apparts);
         }
-        
+
         this.apparts = apparts;
     }
 }

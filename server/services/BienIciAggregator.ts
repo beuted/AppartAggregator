@@ -1,6 +1,7 @@
 import * as request from 'request';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
+import { IBienIciResponse } from '../models/IBienIciResponse';
 
 export class BienIciAggregator implements IAggregator {
     private _url: string;
@@ -27,8 +28,14 @@ export class BienIciAggregator implements IAggregator {
     public GetAppartments(): Promise<IAppart[]> {
         return new Promise((resolve, reject) => {
             request(this._url, this._customHeaderRequest, (error, response, body) => {
-                var apparts : IAppart[] = [];
-                var resp = JSON.parse(body);
+                let apparts : IAppart[] = [];
+                let resp: IBienIciResponse;
+                try {
+                    resp = JSON.parse(body);
+                } catch (e) {
+                    console.error(e, body);
+                }
+
                 if (resp.realEstateAds && resp.realEstateAds.length) {
                     for (var i = 0; i < resp.realEstateAds.length; i++) {
                         apparts.push({
