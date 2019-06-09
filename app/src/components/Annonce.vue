@@ -53,17 +53,8 @@ export default class Annonce extends Vue {
     float: right;
     width: 30px;
     height: 30px;
-    border-width: 0;
-    cursor: pointer;
-    background-color: transparent;
     font-size: 24px;
-
-    &:hover {
-      background-color:#718c00;
-    }
-    &:focus {
-      outline: 0;
-    }
+    color: #e43c47;
   }
 
   .panel-pictures {
