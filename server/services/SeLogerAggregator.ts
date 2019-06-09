@@ -61,7 +61,8 @@ export  class SeLogerAggregator implements IAggregator {
                     let resultats = dom.window.document.querySelector('.liste_resultat').querySelectorAll('.c-pa-list');
 
                     for (let i = 0; i < resultats.length; i++) {
-                        appartIds.push(resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]);
+                        let annonceUrl = resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
+                        appartIds.push(encodeURIComponent(annonceUrl));
                     }
 
                     resolve(appartIds);
@@ -74,11 +75,12 @@ export  class SeLogerAggregator implements IAggregator {
     }
 
     public async GetAppartment(id: string): Promise<IAppart> {
-        let annonce = await this.GetAnnonce(id);
+        let annonceUrl = decodeURIComponent(id);
+        let annonce = await this.GetAnnonce(annonceUrl);
         if (!annonce)
             return null;
 
-        let jsIdParts = id.split('/');
+        let jsIdParts = annonceUrl.split('/');
         let jsId = jsIdParts[jsIdParts.length-1].split('.')[0];
         let annonceJs = await this.GetAnnonceJs(jsId);
         return {
