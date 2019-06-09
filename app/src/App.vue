@@ -2,16 +2,15 @@
   <div>
     <fixed-header :threshold="100">
       <div class="navbar">
-        <div class="main-title">Appart aggregator
+        <div class="navbar-title">Appart aggregator <span class="navbar-counter">{{apparts.length}}</span>
         </div>
-        <button class="navbar-restore">
-            restore annonce
-            <i class="fa fa-reply" aria-hidden="true"></i>
-          </button>
+        <button class="navbar-validate" v-on:click="fetchAnnonces()">
+          Validate
+          <i class="fa fa-check" aria-hidden="true"></i>
+        </button>
       </div>
     </fixed-header>
     <div class="container">
-
       <annonce v-for="annonce in apparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
     </div>
   </div>
@@ -29,7 +28,6 @@ import FixedHeader from 'vue-fixed-header'
   },
 })
 export default class App extends Vue {
-
   public apparts: any[] = [];
 
   public mounted() {
@@ -37,6 +35,7 @@ export default class App extends Vue {
   }
 
   public fetchAnnonces() {
+    console.log("validate")
       this.$http.get('/api/apparts').then(
         response => {
           if (response.status == 200)
@@ -116,7 +115,7 @@ button {
   width: 100vw;
 }
 
-.main-title {
+.navbar-title {
   position: absolute;
   width: 100%;
   padding-top: 5px;
@@ -125,13 +124,23 @@ button {
   text-align: center;
 }
 
+.navbar-counter {
+  padding: 5px;
+  font-size: 18px;
+  border-radius: 5px;
+  background-color: #718c00;
+  color: #fff;
+  vertical-align: middle;
+}
 
-.navbar-restore {
+
+.navbar-validate {
   position: relative;
   float: right;
   margin-top: 10px;
   margin-right: 30px;
   height: 30px;
   font-size: 16px;
+  color: #718c00;
 }
 </style>
