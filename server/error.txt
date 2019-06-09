@@ -1,0 +1,12 @@
+AggregAppart is running at localhost:3000
+Excluding appart id: immo-facile-16913185
+Excluding appart id: immo-facile-24129794
+Excluding appart id: guy-hoquet-immo-facile-1762116
+Excluding appart id: fnaim-41872092
+Excluding appart id: seiitra-pog_bi-20
+Excluding appart id: hektor-GESCOFIM-527
+Stop excluding appart id: hektor-GESCOFIM-527
+Excluding appart id: hektor-GESCOFIM-527
+Excluding appart id: ag751201-122194977
+Stop excluding appart id: ag751201-122194977
+Excluding appart id: ag751201-122194977

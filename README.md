@@ -1,10 +1,10 @@
-# Aggregator d'appart
+# Appart Aggregator
 
-Fait en moins de 24h à fond les ballons le code est hardcore
-
-* `> npm install; npm run build` in the server folder
-* `> npm run start`
-* Go to http://localhost:3000
+* `> npm install; npm run build` in the /server folder
+* `> npm run start` in the /server folder
+* `> npm install; npm run serve` in the /dev folder
+* `> npm run start` in the /server folder
+* Go to http://localhost:8080
 
 ## TODO:
 
