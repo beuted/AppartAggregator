@@ -1,8 +1,9 @@
 # Aggregator d'appart
 
-* `> npm install -g tsc`
-* `> tsc` in the server folder
-* `> node index.js`
+Fait en moins de 24h à fond les ballons le code est hardcore
+
+* `> npm install; npm run build` in the server folder
+* `> npm run start`
 * Go to http://localhost:3000
 
 ## TODO:

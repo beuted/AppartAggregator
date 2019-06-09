@@ -23,6 +23,7 @@
     "@types/jsdom": "^11.0.4",
     "@types/node": "^9.4.1",
     "@types/request": "^2.47.0",
-    "@types/socket.io": "^1.4.31"
+    "@types/socket.io": "^1.4.31",
+    "typescript": "3.5.1"
   }
 }
