@@ -8,6 +8,7 @@ export class AppartCache {
     private _apparts: IAppart[] = [];
     private _listAggregators: IAggregator[];
     private _listFilters: IFilter[];
+    private resetApparts: boolean = false;;
 
     constructor(listAggregators: IAggregator[], listFilters: IFilter[]) {
         this._listAggregators = listAggregators;
@@ -23,6 +24,10 @@ export class AppartCache {
         this.ApplyFilters();
 
         return this._apparts;
+    }
+
+    public DeleteApparts() {
+        this.resetApparts = true;
     }
 
     private async RefreshCache() {
@@ -41,6 +46,12 @@ export class AppartCache {
         }
 
         this.ApplyFilters();
+
+        // Avoid race condition and reset the appart when all processing have been done
+        if (this.resetApparts) {
+            this.resetApparts = false;
+            this._apparts = [];
+        }
 
         storage.setItem('apparts', this._apparts);
 

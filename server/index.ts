@@ -69,6 +69,11 @@ async function Init() {
         res.status(200).send(apparts);
     });
 
+    app.delete("/api/apparts", async (req, res) => {
+        let config = await appartCache.DeleteApparts();
+        res.status(200).send(config);
+    });
+
     app.get("/api/apparts/seloger", async (req, res) => {
         let apparts = await seLogerAggregator.GetAppartments()
         res.status(200).send(apparts);
@@ -99,6 +104,11 @@ async function Init() {
 
     app.post("/api/apparts/config/excluded-keyword", async (req, res) => {
         let config = await appartKeywordsFilter.Set(req.body.keyword, req.body.excluded);
+        res.status(200).send(config);
+    });
+
+    app.post("/api/apparts/config/search-urls", async (req, res) => {
+        let config = await configService.SetSearchUrls(req.body);
         res.status(200).send(config);
     });
 }

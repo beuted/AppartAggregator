@@ -17,7 +17,7 @@
       </div>
     </fixed-header>
     <div class="container">
-      <config v-if="showConfig"></config>
+      <config class="config" v-if="showConfig"></config>
       <annonce v-for="annonce in apparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
     </div>
   </div>
@@ -119,6 +119,7 @@ button {
   background-color: #f7f7f7;
   height: 50px;
   box-shadow: 0px 0px 5px 1px #cccccc;
+  z-index: 300;
 }
 
 .navbar.vue-fixed-header--isFixed {
@@ -155,5 +156,15 @@ button {
   height: 30px;
   font-size: 16px;
   color: #718c00;
+}
+
+.config {
+  position: fixed;
+  width: 900px;
+  box-shadow: 0px 0px 0px 1000px hsla(0, 0%, 0%, 0.548);
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
 }
 </style>

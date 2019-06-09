@@ -107,7 +107,7 @@ export class SeLogerAggregator implements IAggregator {
 
                     let departement = resume.querySelector('.localite').textContent;
                     //let price = resume.querySelector('.price').textContent.replace(/\s/g, '').split('€')[0];
-                    let surfaceArea = resume.querySelector('.criterion').querySelectorAll('li')[2].textContent.replace(/\s/g, '').split('m')[0];
+                    let surfaceArea = resume.querySelector('.criterion').querySelectorAll('li')[2].textContent.replace(/\s/g, '').split('m')[0].replace(',', '.');
 
                     let photosDoms = dom.window.document.querySelectorAll('.carrousel_slide');
 

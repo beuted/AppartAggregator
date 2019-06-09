@@ -12,7 +12,7 @@
       </span>
     </div>
     <div class="panel-section">
-      <input type="text" v-model="keywordInput"/> <button class="label-input" v-on:click="UpdateExcludedKeyword(keywordInput, true)">Add +</button>
+      <input type="text" v-model="keywordInput"/> <button class="label-button" v-on:click="UpdateExcludedKeyword(keywordInput, true)">Add</button>
     </div>
 
     <div class="panel-section">
@@ -20,6 +20,31 @@
     </div>
     <div class="panel-section scroll-section">
       <span class="label" v-for="excludedId in config.excludedIds" :key="excludedId">{{excludedId}}</span>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">SeLoger Search Url</div>
+    </div>
+    <div class="panel-section">
+      <input class="long-input" type="text" v-model="config.searchUrls.seLoger"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Pap Search Url</div>
+    </div>
+    <div class="panel-section">
+      <input class="long-input" type="text" v-model="config.searchUrls.pap"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">BienIci Search Url</div>
+    </div>
+    <div class="panel-section">
+      <input class="long-input" type="text" v-model="config.searchUrls.bienIci"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+    </div>
+
+    <div class="panel-section">
+      <button class="delete-all-button" v-on:click="DeleteApparts()"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Delete all apparts</button>
     </div>
   </div>
 </template>
@@ -32,14 +57,14 @@ export default class Annonce extends Vue {
   public config: any = {
     excludedIds: [],
     excludedKeywords: [],
-    searchUrls:{
+    searchUrls: {
       seLoger: null,
       pap: null,
       bienIci: null
     }
   };
 
-  public keywordInput: string = "";
+  public keywordInput: string = '';
 
   public mounted() {
       this.fetchConfig();
@@ -62,7 +87,7 @@ export default class Annonce extends Vue {
     });
   }
 
-  public async UpdateExcludedKeyword(keyword, excluded) {
+  public async UpdateExcludedKeyword(keyword: string, excluded: boolean) {
     return await this.$http.post('/api/apparts/config/excluded-keyword', { keyword: keyword, excluded: excluded}).then(response => {
       if (response.status == 200)
       {
@@ -88,10 +113,43 @@ export default class Annonce extends Vue {
     });
   }
 
-  private async SaveKeyword() {
+  public async UpdateSearchUrls() {
+    return await this.$http.post('/api/apparts/config/search-urls', this.config.searchUrls).then(response => {
+      if (response.status == 200)
+      {
+        console.log('search urls updated');
+      }
+      else
+      {
+        console.error(JSON.stringify(response));
+        this.config = null;
+      }
+    }, response => {
+        console.error(JSON.stringify(response));
+        this.config = null;
+    });
+  }
 
+  public async DeleteApparts() {
+    var r = confirm('You are about to delete all apparts');
+    if (!r)
+      return;
+
+    return await this.$http.delete('/api/apparts').then(response => {
+      if (response.status == 200)
+      {
+        console.log('All apparts have been deleted');
+      }
+      else
+      {
+        console.error(JSON.stringify(response));
+      }
+    }, response => {
+        console.error(JSON.stringify(response));
+    });
   }
 }
+
 
 </script>
 
@@ -99,7 +157,7 @@ export default class Annonce extends Vue {
 <style scoped lang="scss">
   .panel {
     background-color: #f7f7f7;
-    padding: 15px;
+    padding: 15px 15px 15px 15px;
     margin-bottom: 15px;
   }
 
@@ -114,11 +172,15 @@ export default class Annonce extends Vue {
     margin-left: 5px;
   }
 
-  .label-input {
+  .label-button {
     background-color: #2c3e50;
     color: #fff;
-    padding: 2px 5px 2px 5px;
+    padding: 5px;
     margin-left: 5px;
+
+    &:hover {
+      box-shadow: 0px 0px 5px 1px #cccccc;
+    }
   }
 
   .panel-section {
@@ -128,8 +190,22 @@ export default class Annonce extends Vue {
     }
   }
 
+  .delete-all-button {
+    margin-top: 15px;
+    padding: 5px;
+    background-color: #e43c47;
+    color: #fff;
+    &:hover {
+      box-shadow: 0px 0px 5px 1px #cccccc;
+    }
+  }
+
   .scroll-section {
     max-height: 150px;
     overflow: auto;
+  }
+
+  .long-input {
+    width: 700px;
   }
 </style>
