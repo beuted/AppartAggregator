@@ -2,15 +2,17 @@
   <div class="panel">
     <div class="panel-heading">
       <a v-bind:href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
-      <button style="float:right;" v-on:click="excludeId(annonce.id)">X</button>
+      <button class="panel-heading-exclude" v-on:click="excludeId(annonce.id)">
+        <i class="fa fa-trash"></i>
+      </button>
     </div>
     <div class="panel-body" v-bind:style="{ display: isExcluded ? 'none' : 'block' }">
-      <div class="col-xs-6">
+      <div>
         <p>{{annonce.description}}</p>
       </div>
-      <div class="col-xs-6" style="overflow-x: scroll; overflow-y: hidden; height: 220px;">
-        <div style="width: max-content;">
-          <img class="panel-picture" v-for="picture in annonce.photos" v-bind:src="picture" v-bind:key="picture">
+      <div class="panel-pictures" v-if="annonce.photos.length != 0">
+        <div class="panel-pictures-box">
+          <img class="panel-pictures-box-item" v-for="picture in annonce.photos" v-bind:src="picture" v-bind:key="picture">
         </div>
       </div>
     </div>
@@ -47,7 +49,33 @@ export default class Annonce extends Vue {
     font-weight: bold;
   }
 
-  .panel-picture {
+  .panel-heading-exclude {
+    float: right;
+    width: 30px;
+    height: 30px;
+    border-width: 0;
+    cursor: pointer;
+    background-color: transparent;
+    font-size: 24px;
+
+    &:hover {
+      background-color:#718c00;
+    }
+    &:focus {
+      outline: 0;
+    }
+  }
+
+  .panel-pictures {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 220px;
+  }
+  .panel-pictures-box {
+    width: max-content;
+  }
+
+  .panel-pictures-box-item {
     margin-left: 10px;
     margin-right: 10px;
     height: 200px;
