@@ -3,7 +3,8 @@
     <div class="panel-heading">
       <a v-bind:href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
       <button class="panel-heading-exclude" v-on:click="excludeId(annonce.id)">
-        <i class="fa fa-trash"></i>
+        <i v-if="!isExcluded" class="fa fa-trash"></i>
+        <i v-if="isExcluded" class="fa fa-reply"></i>
       </button>
     </div>
     <div class="panel-body" v-bind:style="{ display: isExcluded ? 'none' : 'block' }">
@@ -53,8 +54,11 @@ export default class Annonce extends Vue {
     float: right;
     width: 30px;
     height: 30px;
-    font-size: 24px;
+    font-size: 22px;
     color: #e43c47;
+    .fa-reply {
+      color: #2c3e50;
+    }
   }
 
   .panel-pictures {
