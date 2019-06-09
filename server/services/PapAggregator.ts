@@ -10,6 +10,7 @@ export class PapAggregator implements IAggregator {
     private _customHeaderRequest: any;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
+    private _period = 30000;
 
     constructor(private _configService: ConfigService) {
         var maxQPS = 1;
@@ -29,10 +30,6 @@ export class PapAggregator implements IAggregator {
         };
 
         this.RefreshAppartments(null);
-
-        //TODO: why settimeout ? why in constructor ?
-        setTimeout(() => this.RefreshAppartments(null), 30000); //TODO: avoid calling refresh if prev refresh has not ended
-
     }
 
     public GetAppartments(config: IConfig): Promise<IAppart[]>{
@@ -46,6 +43,8 @@ export class PapAggregator implements IAggregator {
                 this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
             }
         }
+
+        setTimeout(() => this.RefreshAppartments(config), this._period);
     }
 
     private async GetAppartmentsIds(config: IConfig): Promise<string[]> {

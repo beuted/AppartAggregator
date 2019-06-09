@@ -11,6 +11,7 @@ export class SeLogerAggregator implements IAggregator {
     private _virtualConsole: VirtualConsole;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
+    private _period = 30000;
 
     constructor(private _configService: ConfigService) {
         var maxQPS = 0.1;
@@ -33,9 +34,6 @@ export class SeLogerAggregator implements IAggregator {
         };
 
         this.RefreshAppartments(null);
-
-        //TODO: why settimeout ? why in constructor ?
-        setTimeout(() => this.RefreshAppartments(null), 30000);
     }
 
     public GetAppartments(config: IConfig): Promise<IAppart[]>{
@@ -97,6 +95,8 @@ export class SeLogerAggregator implements IAggregator {
                 this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
             }
         }
+
+        setTimeout(() => this.RefreshAppartments(config), this._period);
     }
 
 

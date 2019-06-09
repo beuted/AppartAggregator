@@ -70,7 +70,8 @@ app.get("/api/apparts/pap", async (req, res) => {
 });
 
 app.post("/api/apparts/filter-id/:id", (req, res) => {
-    var id: string = req.params.id;
+    // Since id comes of uriComponentDecoded (but it should not) we have to url encode it.
+    var id: string = encodeURIComponent(req.params.id);
     var value: boolean = req.body.value;
     appartIdsFilter.Set(id, value);
     res.status(200).send();
