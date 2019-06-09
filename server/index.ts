@@ -10,7 +10,7 @@ import { AppartKeywordsFilter } from './services/AppartKeywordsFilter';
 import { AppartIdsFilter } from './services/AppartIdsFilter';
 
 require('source-map-support').install(); // For .js.map's
-process.on('unhandledRejection', console.log); // Better logging in promises
+process.on('unhandledRejection', console.error); // Better logging in promises
 process.setMaxListeners(0); // Mem leak erros
 
 const app = express();
@@ -26,7 +26,7 @@ const appartKeywordsFilter = new AppartKeywordsFilter(["fourche"]);
 const appartIdsFilter = new AppartIdsFilter(["orpi-1-00604802SDZF"]);
 
 const appartCache = new AppartCache([bienIciAggregator, seLogerAggregator, papAggregator], [appartKeywordsFilter, appartIdsFilter]);
-    
+
 // Serve client files
 app.use(express.static('../app'));
 const server = app.listen(port, () => {

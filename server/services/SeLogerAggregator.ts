@@ -66,7 +66,7 @@ export  class SeLogerAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.log(e, this._annoncesSearchUrl, body);
+                    console.error(e, this._annoncesSearchUrl, body);
                     resolve([]);
                 }
             });
@@ -121,21 +121,21 @@ export  class SeLogerAggregator implements IAggregator {
                             photos.push(dataLazyAttrObj.url);
                         }
                     }
-               
+
                     resolve({
                         title: "TITLE PLACEHOLDER", //TODO
                         departement: departement,
-                        photos: photos,
+                        photos: photos.filter((v,i) => photos.indexOf(v) === i), // Remove doubles
                         surfaceArea: Number(surfaceArea),
                         url: url,
-                        description: undefined,        
+                        description: undefined,
                         price: undefined,
                         adCreatedByPro: undefined,
                         id: undefined,
                         origin: undefined
                     });
                 } catch(e) {
-                    console.log(e);
+                    console.error(e);
                     resolve(null);
                 }
 
@@ -151,9 +151,9 @@ export  class SeLogerAggregator implements IAggregator {
                 try {
                     resp = JSON.parse(body);
                 } catch(e) {
-                    console.log(`failed to parse body: ${body}`);
+                    console.error(`failed to parse body: ${body}`);
                 }
-                
+
                 try {
                     resolve({
                         description: resp.descriptif,
@@ -168,7 +168,7 @@ export  class SeLogerAggregator implements IAggregator {
                         origin: undefined
                     });
                 } catch(e) {
-                    console.log(e, "url: ", url, "body: ", body);
+                    console.error(e, "url: ", url, "body: ", body);
                 }
             });
         });

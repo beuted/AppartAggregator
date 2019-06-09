@@ -57,14 +57,14 @@ export class PapAggregator implements IAggregator {
                     let resultats = dom.window.document.querySelector('.search-results-list').querySelectorAll('.search-list-item');
 
                     for (let i = 0; i < resultats.length; i++) {
-                        //TODO: parallelise 
-                        let split = resultats[i].querySelector('.btn-type-1').getAttribute('href').split("-");
+                        //TODO: parallelise
+                        let split = resultats[i].querySelector('.btn-4').getAttribute('href').split("-");
                         appartIds.push(split[split.length-1])
                     }
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.log(e, this._annoncesSearchUrl, body)
+                    console.error(e, this._annoncesSearchUrl, body)
                     resolve([]);
                 }
             });
@@ -77,10 +77,10 @@ export class PapAggregator implements IAggregator {
             request(url, this._customHeaderRequest, (error, response, body) => {
                 try {
                     const dom = new JSDOM(body);
-               
+
                     // Price
                     var price = dom.window.document.querySelector('.item-price').textContent.replace(/\s/g, '').replace(/\./g, '').split('€')[0];
-                    
+
                     // Desc & departement
                     var itemDesc = dom.window.document.querySelector('.item-description');
                     var departement = itemDesc.querySelector('h2').textContent.replace(/\s/g, '');
@@ -99,7 +99,7 @@ export class PapAggregator implements IAggregator {
                     var carouselElt = dom.window.document.querySelector('.owl-carousel');
                     if (carouselElt) {
                         var photosElts = carouselElt.querySelectorAll('img');
-                        for (var i = 0; i < photosElts.length; i++) {   
+                        for (var i = 0; i < photosElts.length; i++) {
                             photos.push(photosElts[i].getAttribute('src'));
                         }
                     }
@@ -110,14 +110,14 @@ export class PapAggregator implements IAggregator {
                         photos: photos,
                         surfaceArea: Number(surfaceArea),
                         url: url,
-                        description: description,        
+                        description: description,
                         price: Number(price),
                         adCreatedByPro: false,
                         id: id,
                         origin: 'PaP'
                     });
                 } catch(e) {
-                    console.log(e, body);
+                    console.error(e, body);
                     resolve(null);
                 }
 
