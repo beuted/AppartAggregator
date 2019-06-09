@@ -3,18 +3,18 @@ import { JSDOM } from 'jsdom';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
+import { ConfigService } from './ConfigService';
+import { IConfig } from '../models/IConfig';
 
 export class PapAggregator implements IAggregator {
-    private _annoncesSearchUrl: string;
     private _customHeaderRequest: any;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
 
-    constructor() {
+    constructor(private _configService: ConfigService) {
         var maxQPS = 1;
         this._rateLimitor = new RateLimitor(maxQPS);
 
-        this._annoncesSearchUrl = 'https://www.pap.fr/annonce/locations-paris-2e-g37769g37771g37775g37776g37777g37784g37785g37786g37787-jusqu-a-1000-euros-a-partir-de-30-m2';
         this._customHeaderRequest = {
             headers: {
                 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -28,17 +28,19 @@ export class PapAggregator implements IAggregator {
             }
         };
 
-        this.RefreshAppartments();
+        this.RefreshAppartments(null);
 
-        setTimeout(() => this.RefreshAppartments(), 30000); //TODO: avoid calling refresh if prev refresh has not ended
+        //TODO: why settimeout ? why in constructor ?
+        setTimeout(() => this.RefreshAppartments(null), 30000); //TODO: avoid calling refresh if prev refresh has not ended
+
     }
 
-    public GetAppartments(): Promise<IAppart[]>{
+    public GetAppartments(config: IConfig): Promise<IAppart[]>{
         return (<any>Object).values(this._apparts);
     }
 
-    private async RefreshAppartments() {
-        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
+    private async RefreshAppartments(config: IConfig) {
+        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds(config));
         for (let i=0; i < newAppartIds.length; i++) {
             if (!this._apparts[newAppartIds[i]]) {
                 this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
@@ -46,11 +48,10 @@ export class PapAggregator implements IAggregator {
         }
     }
 
-    private GetDetailUrl(id: string) { return `https://www.pap.fr/annonce/locations-${id}` }
-
-    public async GetAppartmentsIds(): Promise<string[]> {
+    private async GetAppartmentsIds(config: IConfig): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
-            request(this._annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
+            let annoncesSearchUrl = this._configService.GetPapSearchUrl(config);
+            request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
                 const dom = new JSDOM(body);
                 try {
@@ -64,14 +65,14 @@ export class PapAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.error(e, this._annoncesSearchUrl, body)
+                    console.error(e, annoncesSearchUrl, body)
                     resolve([]);
                 }
             });
         });
     }
 
-    public async GetAppartment(id: string): Promise<IAppart> {
+    private async GetAppartment(id: string): Promise<IAppart> {
         var url = this.GetDetailUrl(id);
         return new Promise<IAppart>((resolve, reject) => {
             request(url, this._customHeaderRequest, (error, response, body) => {
@@ -124,4 +125,6 @@ export class PapAggregator implements IAggregator {
             });
         });
     }
+
+    private GetDetailUrl(id: string) { return `https://www.pap.fr/annonce/locations-${id}` }
 }

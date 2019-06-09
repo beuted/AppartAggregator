@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as request from 'request';
 import * as http from 'http';
 import * as socketio from 'socket.io';
 import { AppartCache } from './services/AppartCache';
@@ -8,6 +7,7 @@ import { SeLogerAggregator } from './services/SeLogerAggregator';
 import { PapAggregator } from './services/PapAggregator';
 import { AppartKeywordsFilter } from './services/AppartKeywordsFilter';
 import { AppartIdsFilter } from './services/AppartIdsFilter';
+import { ConfigService } from './services/ConfigService';
 
 require('source-map-support').install(); // For .js.map's
 process.on('unhandledRejection', console.error); // Better logging in promises
@@ -19,9 +19,10 @@ const io = socketio(instance);
 
 const port = process.env['PORT'] || 3000;
 
-const bienIciAggregator = new BienIciAggregator();
-const seLogerAggregator = new SeLogerAggregator();
-const papAggregator = new PapAggregator();
+let configService = new ConfigService();
+const bienIciAggregator = new BienIciAggregator(configService);
+const seLogerAggregator = new SeLogerAggregator(configService);
+const papAggregator = new PapAggregator(configService);
 const appartKeywordsFilter = new AppartKeywordsFilter(["fourche"]);
 const appartIdsFilter = new AppartIdsFilter(["orpi-1-00604802SDZF"]);
 
@@ -51,17 +52,20 @@ app.get("/api/apparts", async (req, res) => {
 });
 
 app.get("/api/apparts/seloger", async (req, res) => {
-    let apparts = await seLogerAggregator.GetAppartments()
+    let config = null;
+    let apparts = await seLogerAggregator.GetAppartments(config)
     res.status(200).send(apparts);
 });
 
 app.get("/api/apparts/bienici", async (req, res) => {
-    let apparts = await bienIciAggregator.GetAppartments();
+    let config = null;
+    let apparts = await bienIciAggregator.GetAppartments(config);
     res.status(200).send(apparts);
 });
 
 app.get("/api/apparts/pap", async (req, res) => {
-    let apparts = await papAggregator.GetAppartments()
+    let config = null;
+    let apparts = await papAggregator.GetAppartments(config);
     res.status(200).send(apparts);
 });
 

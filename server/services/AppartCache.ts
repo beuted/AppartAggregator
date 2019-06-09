@@ -1,6 +1,7 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
 import { IAggregator } from './IAggregator';
+import { IConfig } from '../models/IConfig';
 
 export class AppartCache {
     private apparts: IAppart[] = [];
@@ -11,20 +12,20 @@ export class AppartCache {
         this.listAggregators = listAggregators;
         this.listFilters = listFilters;
 
-        this.refreshCache();
+        this.refreshCache(null);
         // Refresh the cache every 30 secs
-        setInterval(() => this.refreshCache(), 1000);
+        setInterval(() => this.refreshCache(null), 10000);
     }
 
     public GetApparts() {
         return this.apparts;
     }
 
-    private async refreshCache() {
+    private async refreshCache(config: IConfig) {
         let apparts: IAppart[] = [];
         let getAppartPromises: Promise<IAppart[]>[] = [];
         for (let i = 0; i < this.listAggregators.length; i++) {
-            getAppartPromises.push(this.listAggregators[i].GetAppartments());
+            getAppartPromises.push(this.listAggregators[i].GetAppartments(config));
         }
 
         // Hit all aggregator in parrallel

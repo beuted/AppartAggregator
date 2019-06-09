@@ -3,22 +3,22 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
+import { ConfigService } from './ConfigService';
+import { IConfig } from '../models/IConfig';
 
-export  class SeLogerAggregator implements IAggregator {
-    private _annoncesSearchUrl: string;
+export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
     private _virtualConsole: VirtualConsole;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
 
-    constructor() {
+    constructor(private _configService: ConfigService) {
         var maxQPS = 0.1;
         this._rateLimitor = new RateLimitor(maxQPS);
 
         this._virtualConsole = new VirtualConsole();
         this._virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
-        this._annoncesSearchUrl = 'http://www.seloger.com/list.htm?ci=750102,750104,750108,750109,750110,750117,750118,750119,750120&idtt=1&idtypebien=1,2&naturebien=1&nb_pieces=2&pxmax=1000&surfacemin=30&tri=initial';
         this._customHeaderRequest = {
             headers: {
                 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -32,49 +32,17 @@ export  class SeLogerAggregator implements IAggregator {
             }
         };
 
-        this.RefreshAppartments();
+        this.RefreshAppartments(null);
 
-        setTimeout(() => this.RefreshAppartments(), 30000)
+        //TODO: why settimeout ? why in constructor ?
+        setTimeout(() => this.RefreshAppartments(null), 30000);
     }
 
-    public GetAppartments(): Promise<IAppart[]>{
+    public GetAppartments(config: IConfig): Promise<IAppart[]>{
         return (<any>Object).values(this._apparts);
     }
 
-    private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
-
-    private async RefreshAppartments() {
-        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
-        for (let i=0; i < newAppartIds.length; i++) {
-            if (!this._apparts[newAppartIds[i]]) {
-                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
-            }
-        }
-    }
-
-    protected async GetAppartmentsIds(): Promise<string[]> {
-        return new Promise<string[]>((resolve, reject) => {
-            request(this._annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
-                let appartIds: string[] = [];
-                const dom = new JSDOM(body, { virtualConsole: this._virtualConsole });
-                try {
-                    let resultats = dom.window.document.querySelector('.liste_resultat').querySelectorAll('.c-pa-list');
-
-                    for (let i = 0; i < resultats.length; i++) {
-                        let annonceUrl = resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
-                        appartIds.push(encodeURIComponent(annonceUrl));
-                    }
-
-                    resolve(appartIds);
-                } catch(e) {
-                    console.error(e, this._annoncesSearchUrl, body);
-                    resolve([]);
-                }
-            });
-        });
-    }
-
-    public async GetAppartment(id: string): Promise<IAppart> {
+    private async GetAppartment(id: string): Promise<IAppart> {
         let annonceUrl = decodeURIComponent(id);
         let annonce = await this.GetAnnonce(annonceUrl);
         if (!annonce)
@@ -96,6 +64,41 @@ export  class SeLogerAggregator implements IAggregator {
             origin: 'SeLoger'
         };
     }
+
+    private async GetAppartmentsIds(config: IConfig): Promise<string[]> {
+        return new Promise<string[]>((resolve, reject) => {
+            let annoncesSearchUrl = this._configService.GetSeLogerSearchUrl(config);
+            request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
+                let appartIds: string[] = [];
+                const dom = new JSDOM(body, { virtualConsole: this._virtualConsole });
+                try {
+                    let resultats = dom.window.document.querySelector('.liste_resultat').querySelectorAll('.c-pa-list');
+
+                    for (let i = 0; i < resultats.length; i++) {
+                        let annonceUrl = resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
+                        appartIds.push(encodeURIComponent(annonceUrl));
+                    }
+
+                    resolve(appartIds);
+                } catch(e) {
+                    console.error(e, annoncesSearchUrl, body);
+                    resolve([]);
+                }
+            });
+        });
+    }
+
+    private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
+
+    private async RefreshAppartments(config: IConfig) {
+        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds(config));
+        for (let i=0; i < newAppartIds.length; i++) {
+            if (!this._apparts[newAppartIds[i]]) {
+                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+            }
+        }
+    }
+
 
     private async GetAnnonce(url: string): Promise<IAppart> {
         return new Promise<IAppart>((resolve, reject) => {
