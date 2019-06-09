@@ -1,11 +1,16 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
+import * as storage from 'node-persist';
 
 export class AppartIdsFilter implements IFilter {
     private _descExcludedIds: string[];
 
     constructor(descExcludedIds: string[]) {
         this._descExcludedIds = descExcludedIds || [];
+    }
+
+    public async InitFromStorage() {
+        this._descExcludedIds = await storage.getItem('excludedIds') || [];
     }
 
     public Filter(apparts: IAppart[]): IAppart[] {
@@ -29,6 +34,8 @@ export class AppartIdsFilter implements IFilter {
             console.log(`Stop excluding appart id: ${id}`);
             this._descExcludedIds.splice(idPosInArray, 1);
         }
+
+        storage.setItem('excludedIds', this._descExcludedIds);
     }
 
     private IsAppartValid(appart: IAppart) {

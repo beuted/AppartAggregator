@@ -1,7 +1,7 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
 import { IAggregator } from './IAggregator';
-import { IConfig } from '../models/IConfig';
+import * as storage from 'node-persist';
 
 export class AppartCache {
     private _refreshPeriod = 10000;
@@ -12,8 +12,11 @@ export class AppartCache {
     constructor(listAggregators: IAggregator[], listFilters: IFilter[]) {
         this._listAggregators = listAggregators;
         this._listFilters = listFilters;
+    }
 
-        this.refreshCache(null);
+    public async Start() {
+        this._apparts = await storage.getItem('apparts') || [];
+        await this.RefreshCache();
     }
 
     public GetApparts() {
@@ -22,12 +25,12 @@ export class AppartCache {
         return this._apparts;
     }
 
-    private async refreshCache(config: IConfig) {
-        console.log("Refresh cache");
+    private async RefreshCache() {
         let apparts: IAppart[] = [];
         let getAppartPromises: Promise<IAppart[]>[] = [];
+        //TODO: pas besoin de chopper les apparts qu'on connait deja et ceux qu'on a blacklistés.
         for (let i = 0; i < this._listAggregators.length; i++) {
-            getAppartPromises.push(this._listAggregators[i].GetAppartments(config));
+            getAppartPromises.push(this._listAggregators[i].GetAppartments());
         }
 
         // Hit all aggregator in parrallel
@@ -37,11 +40,14 @@ export class AppartCache {
             apparts = apparts.concat(promiseResponses[i]);
         }
 
-        this._apparts = apparts;
-
         this.ApplyFilters();
 
-        setTimeout(() => this.refreshCache(null), this._refreshPeriod);
+        if (JSON.stringify(apparts) != JSON.stringify(this._apparts))
+            storage.setItem('apparts', apparts);
+
+        this._apparts = apparts;
+
+        setTimeout(() => this.RefreshCache(), this._refreshPeriod);
     }
 
     private ApplyFilters() {

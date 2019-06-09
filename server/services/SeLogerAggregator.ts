@@ -4,7 +4,6 @@ import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
 import { ConfigService } from './ConfigService';
-import { IConfig } from '../models/IConfig';
 
 export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -33,11 +32,22 @@ export class SeLogerAggregator implements IAggregator {
             }
         };
 
-        this.RefreshAppartments(null);
+        this.RefreshAppartments();
     }
 
-    public GetAppartments(config: IConfig): Promise<IAppart[]>{
+    public GetAppartments(): Promise<IAppart[]>{
         return (<any>Object).values(this._apparts);
+    }
+
+    private async RefreshAppartments() {
+        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
+        for (let i=0; i < newAppartIds.length; i++) {
+            if (!this._apparts[newAppartIds[i]]) {
+                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+            }
+        }
+
+        setTimeout(() => this.RefreshAppartments(), this._period);
     }
 
     private async GetAppartment(id: string): Promise<IAppart> {
@@ -63,9 +73,9 @@ export class SeLogerAggregator implements IAggregator {
         };
     }
 
-    private async GetAppartmentsIds(config: IConfig): Promise<string[]> {
+    private async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
-            let annoncesSearchUrl = this._configService.GetSeLogerSearchUrl(config);
+            let annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
                 const dom = new JSDOM(body, { virtualConsole: this._virtualConsole });
@@ -87,18 +97,6 @@ export class SeLogerAggregator implements IAggregator {
     }
 
     private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
-
-    private async RefreshAppartments(config: IConfig) {
-        let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds(config));
-        for (let i=0; i < newAppartIds.length; i++) {
-            if (!this._apparts[newAppartIds[i]]) {
-                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
-            }
-        }
-
-        setTimeout(() => this.RefreshAppartments(config), this._period);
-    }
-
 
     private async GetAnnonce(url: string): Promise<IAppart> {
         return new Promise<IAppart>((resolve, reject) => {

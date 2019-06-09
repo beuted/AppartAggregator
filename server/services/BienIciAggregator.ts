@@ -3,7 +3,6 @@ import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { IBienIciResponse } from '../models/IBienIciResponse';
 import { ConfigService } from './ConfigService';
-import { IConfig } from '../models/IConfig';
 
 export class BienIciAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -24,9 +23,9 @@ export class BienIciAggregator implements IAggregator {
         }
     }
 
-    public GetAppartments(config: IConfig): Promise<IAppart[]> {
+    public GetAppartments(): Promise<IAppart[]> {
         return new Promise((resolve, reject) => {
-            let annoncesSearchUrl = this._configService.GetBienIciSearchUrl(config);
+            let annoncesSearchUrl = this._configService.GetBienIciSearchUrl();
             request(annoncesSearchUrl, this._customHeaderRequest, (error, response, body) => {
                 let apparts : IAppart[] = [];
                 let resp: IBienIciResponse;
