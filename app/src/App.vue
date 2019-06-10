@@ -27,7 +27,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import Config from './components/Config.vue';
 import Annonce from './components/Annonce.vue';
-import FixedHeader from 'vue-fixed-header'
+import FixedHeader from 'vue-fixed-header';
 
 @Component({
   components: {
