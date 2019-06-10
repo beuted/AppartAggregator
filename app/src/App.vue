@@ -27,6 +27,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import Config from './components/Config.vue';
 import Annonce from './components/Annonce.vue';
+import { NotificationService } from './services/NotificationService';
 import FixedHeader from 'vue-fixed-header';
 
 @Component({
@@ -40,8 +41,13 @@ export default class App extends Vue {
   public apparts: any[] = [];
   public showConfig: boolean = false;
 
+  private notificationService!: NotificationService;
+
   public mounted() {
-      this.fetchAnnonces();
+    this.fetchAnnoncesLoop();
+
+    this.notificationService = new NotificationService();
+    this.notificationService.Init();
   }
 
   public toggleConfig() {
@@ -53,8 +59,15 @@ export default class App extends Vue {
       response => {
         if (response.status == 200)
         {
+          let currAppartIds = this.apparts.map(x => x.id);
+          let newIds = response.data.map((x: any) => x.id).filter((id: string) => currAppartIds.findIndex(i => i === id) == -1);
+          if (newIds.length != 0) {
+            new Notification(`${newIds.length} New appartments have been found !`);
+          }
+
           this.apparts = response.data;
           console.log(response.data);
+
         }
         else
         {
@@ -65,8 +78,17 @@ export default class App extends Vue {
           console.error(JSON.stringify(response));
           this.apparts = [];
       });
-    }
   }
+
+  private fetchAnnoncesLoop() {
+      this.fetchAnnonces()
+      setTimeout(() => {
+        this.fetchAnnoncesLoop();
+      }, 30000);
+  }
+
+
+}
 </script>
 
 <style lang="scss">
