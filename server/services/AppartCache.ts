@@ -4,7 +4,7 @@ import { IAggregator } from './IAggregator';
 import * as storage from 'node-persist';
 
 export class AppartCache {
-    private _refreshPeriod = 10000;
+    private _refreshPeriod = 30000;
     private _apparts: IAppart[] = [];
     private _listAggregators: IAggregator[];
     private _listFilters: IFilter[];
