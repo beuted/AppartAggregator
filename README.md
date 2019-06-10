@@ -1,10 +1,18 @@
 # Appart Aggregator
 
-* `> npm install; npm run build` in the /server folder
-* `> npm run start` in the /server folder
-* `> npm install; npm run serve` in the /dev folder
-* `> npm run start` in the /server folder
-* Go to http://localhost:8080
+## To run in prod
+
+## To dev
+
+* `> npm install; npm run build` in the /app folder
+* `> npm install; npm run build; npm run start` in the /server folder
+* Go to http://localhost:3000
+
+## To dev
+
+* `> npm install; npm run build; PORT=3456 npm run start` in the /server folder
+* `> npm install; npm run serve` in the /app folder
+* Go to http://localhost:3456
 
 ## TODO:
 

@@ -47,7 +47,7 @@ async function Init() {
     await appartCache.Start();
 
     // Serve client files
-    app.use(express.static('../app'));
+    app.use(express.static('../app/dist'));
     const server = app.listen(port, () => {
         console.log('AggregAppart is running at localhost:' + port);
     });
@@ -57,7 +57,6 @@ async function Init() {
 
     // Set up Socket.IO to listen on port 8000
     io.listen(server);
-
 
     // Router
     app.get("/api/", function(req, res) {
