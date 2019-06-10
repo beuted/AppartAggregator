@@ -3,7 +3,7 @@
     <div class="panel-section">
       <div class="panel-title">Excluded Keywords</div>
     </div>
-    <div class="panel-section">
+    <div class="panel-section scroll-section">
       <span class="label" v-for="excludedKeyword in config.excludedKeywords" :key="excludedKeyword">
         {{excludedKeyword}}
         <button v-on:click="UpdateExcludedKeyword(excludedKeyword, false)">
@@ -206,6 +206,6 @@ export default class Annonce extends Vue {
   }
 
   .long-input {
-    width: 700px;
+    width: 80%;
   }
 </style>

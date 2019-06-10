@@ -112,9 +112,15 @@ button {
   margin-top: 30px;
   margin: 30px auto 0 auto;
   width: 900px;
+  @media screen and (max-width: 900px) {
+    width: 470px;
+    margin-left: 5px;
+  }
 }
 
 .navbar {
+  width: 100%;
+  min-width: 480px;
   position: relative;
   background-color: #f7f7f7;
   height: 50px;
@@ -136,6 +142,12 @@ button {
   font-size: 30px;
   font-weight: bold;
   text-align: center;
+  @media screen and (max-width: 900px) {
+    font-size: 20px;
+    padding-top: 10px;
+    text-align: left;
+    padding-left: 20px;
+  }
 }
 
 .navbar-counter {
@@ -161,6 +173,9 @@ button {
 .config {
   position: fixed;
   width: 900px;
+  @media screen and (max-width: 900px) {
+    width: 470px;
+  }
   box-shadow: 0px 0px 0px 1000px hsla(0, 0%, 0%, 0.548);
   top: 50%;
   left: 50%;
