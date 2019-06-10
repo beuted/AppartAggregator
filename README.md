@@ -1,6 +1,6 @@
 # Appart Aggregator
 
-![alt text](https://raw.githubusercontent.com/dekajoo/appart-aggregator/branch/appart-aggregator.png)
+![appart-aggregator.png](https://raw.githubusercontent.com/beuted/AppartAggregator/master/appart-aggregator.png)
 
 ## To run in prod
 
