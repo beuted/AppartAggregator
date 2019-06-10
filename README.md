@@ -10,7 +10,7 @@
 
 ## To dev
 
-* `> npm install; npm run build;npm run start` in the /server folder
+* `> npm install; npm run build; npm run start` in the /server folder
 * `> npm install; npm run serve` in the /app folder
 * Go to http://localhost:3000
 
