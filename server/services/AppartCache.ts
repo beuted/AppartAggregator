@@ -36,7 +36,6 @@ export class AppartCache {
 
     private async RefreshCacheLoop() {
         let getAppartPromises: Promise<IAppart[]>[] = [];
-        //TODO: pas besoin de chopper les apparts qu'on connait deja et ceux qu'on a blacklistés.
         for (let i = 0; i < this._listAggregators.length; i++) {
             getAppartPromises.push(this._listAggregators[i].GetAppartments());
         }
@@ -44,22 +43,26 @@ export class AppartCache {
         // Hit all aggregator in parrallel
         var promiseResponses = await Promise.all(getAppartPromises);
 
-        this._apparts = [];
+        var apparts: IAppart[] = [];
         for (let i = 0; i < this._listAggregators.length; i++) {
             // Only push the one you don't know yet based on the Id
-            this._apparts = this._apparts.concat(promiseResponses[i]);
+            apparts = apparts.concat(promiseResponses[i]);
         }
 
         // Avoid race condition and reset the appart when all processing have been done
         if (this.resetApparts) {
             this.resetApparts = false;
-            this._apparts = [];
+            apparts = [];
             for (let i = 0; i < this._listAggregators.length; i++) {
                 this._listAggregators[i].ResetCache();
             }
         }
 
-        storage.setItem('apparts', this._apparts);
+        // Do not write on filesystem when not necessary
+        if (JSON.stringify(this._apparts) !== JSON.stringify(apparts)) {
+            storage.setItem('apparts', apparts);
+            this._apparts = apparts;
+        }
 
         setTimeout(() => this.RefreshCacheLoop(), this._refreshPeriod);
     }
