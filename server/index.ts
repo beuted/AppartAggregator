@@ -24,7 +24,7 @@ async function Init() {
     const port = process.env['PORT'] || 3000;
 
     await storage.init({
-        dir : "./persist",
+        dir : './persist',
         stringify: JSON.stringify,
         parse: JSON.parse,
         encoding: 'utf8',
@@ -64,7 +64,7 @@ async function Init() {
     });
 
     app.get("/api/apparts", async (req, res) => {
-        let apparts = appartCache.GetApparts();
+        let apparts = appartCache.GetAppartsFiltered();
         res.status(200).send(apparts);
     });
 
@@ -74,7 +74,7 @@ async function Init() {
     });
 
     app.get("/api/apparts/seloger", async (req, res) => {
-        let apparts = await seLogerAggregator.GetAppartments()
+        let apparts = await seLogerAggregator.GetAppartments();
         res.status(200).send(apparts);
     });
 

@@ -3,6 +3,7 @@ import { IFilter } from './IFilter';
 import { IAggregator } from './IAggregator';
 import * as storage from 'node-persist';
 
+// Poorly named class, Each Aggregator has its own cache
 export class AppartCache {
     private _refreshPeriod = 30000;
     private _apparts: IAppart[] = [];
@@ -17,20 +18,23 @@ export class AppartCache {
 
     public async Start() {
         this._apparts = await storage.getItem('apparts') || [];
-        await this.RefreshCache();
+
+        for (let i = 0; i < this._listAggregators.length; i++) {
+            this._listAggregators[i].Start();
+        }
+
+        this.RefreshCacheLoop();
     }
 
-    public GetApparts() {
-        this.ApplyFilters();
-
-        return this._apparts;
+    public GetAppartsFiltered() {
+        return this.ApplyFilters(this._apparts);
     }
 
     public DeleteApparts() {
         this.resetApparts = true;
     }
 
-    private async RefreshCache() {
+    private async RefreshCacheLoop() {
         let getAppartPromises: Promise<IAppart[]>[] = [];
         //TODO: pas besoin de chopper les apparts qu'on connait deja et ceux qu'on a blacklistés.
         for (let i = 0; i < this._listAggregators.length; i++) {
@@ -40,27 +44,31 @@ export class AppartCache {
         // Hit all aggregator in parrallel
         var promiseResponses = await Promise.all(getAppartPromises);
 
+        this._apparts = [];
         for (let i = 0; i < this._listAggregators.length; i++) {
             // Only push the one you don't know yet based on the Id
-            this._apparts = this._apparts.concat(promiseResponses[i].filter(x => this._apparts.findIndex(appart => appart.id == x.id) == -1));
+            this._apparts = this._apparts.concat(promiseResponses[i]);
         }
-
-        this.ApplyFilters();
 
         // Avoid race condition and reset the appart when all processing have been done
         if (this.resetApparts) {
             this.resetApparts = false;
             this._apparts = [];
+            for (let i = 0; i < this._listAggregators.length; i++) {
+                this._listAggregators[i].ResetCache();
+            }
         }
 
         storage.setItem('apparts', this._apparts);
 
-        setTimeout(() => this.RefreshCache(), this._refreshPeriod);
+        setTimeout(() => this.RefreshCacheLoop(), this._refreshPeriod);
     }
 
-    private ApplyFilters() {
+    private ApplyFilters(apparts: IAppart[]) {
+        let appartsFiltered: IAppart[] = apparts.slice(); // copy array
         for (let i = 0; i < this._listFilters.length; i++) {
-            this._apparts = this._listFilters[i].Filter(this._apparts);
+            appartsFiltered = this._listFilters[i].Filter(appartsFiltered);
         }
+        return appartsFiltered
     }
 }

@@ -23,6 +23,14 @@ export class BienIciAggregator implements IAggregator {
         }
     }
 
+    public Start() {
+        // Nothing to start in this case
+    }
+
+    public ResetCache() {
+        // Nothing to reset in this case
+    }
+
     public GetAppartments(): Promise<IAppart[]> {
         return new Promise((resolve, reject) => {
             let annoncesSearchUrl = this._configService.GetBienIciSearchUrl();
@@ -56,5 +64,6 @@ export class BienIciAggregator implements IAggregator {
                 resolve(apparts);
             });
         });
+
     }
 }

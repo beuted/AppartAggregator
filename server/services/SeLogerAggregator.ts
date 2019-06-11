@@ -3,7 +3,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
-import { ConfigService } from './ConfigService';
+import { ConfigService } from './ConfigService';;
 
 export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -31,23 +31,32 @@ export class SeLogerAggregator implements IAggregator {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36',
             }
         };
+    }
 
-        this.RefreshAppartments();
+    public Start() {
+        this.RefreshAppartmentsLoop();
+    }
+
+    public ResetCache() {
+        this._apparts = {};
     }
 
     public GetAppartments(): Promise<IAppart[]>{
         return (<any>Object).values(this._apparts);
     }
 
-    private async RefreshAppartments() {
+    private async RefreshAppartmentsLoop() {
         let newAppartIds = await this._rateLimitor.WaitAndQuery(() => this.GetAppartmentsIds());
+
         for (let i=0; i < newAppartIds.length; i++) {
             if (!this._apparts[newAppartIds[i]]) {
-                this._apparts[newAppartIds[i]] = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+                let appart = await this._rateLimitor.WaitAndQuery(() => this.GetAppartment(newAppartIds[i]));
+                if (appart)
+                    this._apparts[newAppartIds[i]] = appart;
             }
         }
 
-        setTimeout(() => this.RefreshAppartments(), this._period);
+        setTimeout(() => this.RefreshAppartmentsLoop(), this._period);
     }
 
     private async GetAppartment(id: string): Promise<IAppart> {
