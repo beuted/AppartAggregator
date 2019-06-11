@@ -30,7 +30,8 @@ export class PapAggregator implements IAggregator {
     }
 
     public Start() {
-        this.RefreshAppartmentsLoop();
+        //Try moving Pap Start from 15sec so that it is not at the same time as SeLoger every 30s
+        setTimeout(() => this.RefreshAppartmentsLoop(), 15000);
     }
 
     public ResetCache() {
