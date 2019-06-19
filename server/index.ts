@@ -18,8 +18,7 @@ Init();
 
 async function Init() {
     const app = express();
-    const instance = http.createServer(app);
-    const io = socketio(instance);
+    http.createServer(app);
 
     const port = process.env['PORT'] || 3000;
 
@@ -54,9 +53,6 @@ async function Init() {
 
     const bodyParser = require('body-parser');
     app.use(bodyParser.json());
-
-    // Set up Socket.IO to listen on port 8000
-    io.listen(server);
 
     // Router
     app.get("/api/", function(req, res) {

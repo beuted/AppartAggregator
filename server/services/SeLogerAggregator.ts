@@ -1,5 +1,5 @@
 import * as request from 'request';
-import { JSDOM, VirtualConsole } from 'jsdom';
+import * as cheerio from 'cheerio';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
@@ -7,7 +7,6 @@ import { ConfigService } from './ConfigService';;
 
 export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
-    private _virtualConsole: VirtualConsole;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
     private _period = 30000;
@@ -15,9 +14,6 @@ export class SeLogerAggregator implements IAggregator {
     constructor(private _configService: ConfigService) {
         var maxQPS = 0.1;
         this._rateLimitor = new RateLimitor(maxQPS);
-
-        this._virtualConsole = new VirtualConsole();
-        this._virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
         this._customHeaderRequest = {
             headers: {
@@ -87,12 +83,12 @@ export class SeLogerAggregator implements IAggregator {
             let annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
-                const dom = new JSDOM(body, { virtualConsole: this._virtualConsole });
+                const $ = cheerio.load(body);
                 try {
-                    let resultats = dom.window.document.querySelector('.liste_resultat').querySelectorAll('.c-pa-list');
+                    let resultats = $('.liste_resultat').find('.c-pa-list .c-pa-link');
 
                     for (let i = 0; i < resultats.length; i++) {
-                        let annonceUrl = resultats[i].querySelector('.c-pa-link').getAttribute('href').split("?")[0]
+                        let annonceUrl = resultats[i].attribs['href'].split("?")[0]
                         appartIds.push(encodeURIComponent(annonceUrl));
                     }
 
@@ -111,31 +107,31 @@ export class SeLogerAggregator implements IAggregator {
         return new Promise<IAppart>((resolve, reject) => {
             request(url, this._customHeaderRequest, (error, response, body) => {
                 try {
-                    const dom = new JSDOM(body, { virtualConsole: this._virtualConsole });
-                    let resume = dom.window.document.querySelector('.resume');
+                    const $ = cheerio.load(body);
+                    let resume = $('.resume');
 
-                    let departement = resume.querySelector('.localite').textContent;
+                    let departement = $(resume).find('.localite').first().text();
                     //let price = resume.querySelector('.price').textContent.replace(/\s/g, '').split('€')[0];
-                    let surfaceArea = resume.querySelector('.criterion').querySelectorAll('li')[2].textContent.replace(/\s/g, '').split('m')[0].replace(',', '.');
+                    let surfaceArea =  $(resume).find('.criterion > li').eq(2).text().replace(/\s/g, '').split('m')[0].replace(',', '.');
 
-                    let photosDoms = dom.window.document.querySelectorAll('.carrousel_slide');
+                    let photosDoms = $('.carrousel_slide');
 
                     let photos: string[] = [];
 
                     // Last slide is some seloger shit
-                    for (let i =0; i < photosDoms.length - 1; i++) {
-                        let bgImg = (<any>photosDoms[i]).style['background-image']
+                    for (let i = 0; i < photosDoms.length - 1; i++) {
+                        let bgImg = (photosDoms.eq(i)).css('background-image');
                         if (bgImg) {
                             photos.push(bgImg.substring(4, bgImg.length-1));
                         } else {
-                            let dataLazyAttr = photosDoms[i].getAttribute('data-lazy');
+                            let dataLazyAttr = photosDoms.eq(i).attr('data-lazy');
                             let dataLazyAttrObj = JSON.parse(dataLazyAttr)
                             photos.push(dataLazyAttrObj.url);
                         }
                     }
 
                     resolve({
-                        title: "TITLE PLACEHOLDER", //TODO
+                        title: "",
                         departement: departement,
                         photos: photos.filter((v,i) => photos.indexOf(v) === i), // Remove doubles
                         surfaceArea: Number(surfaceArea),

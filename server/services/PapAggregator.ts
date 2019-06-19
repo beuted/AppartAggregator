@@ -1,5 +1,5 @@
 import * as request from 'request';
-import { JSDOM } from 'jsdom';
+import * as cheerio from 'cheerio';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
@@ -61,13 +61,13 @@ export class PapAggregator implements IAggregator {
             let annoncesSearchUrl = this._configService.GetPapSearchUrl();
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
-                const dom = new JSDOM(body);
+                const $ = cheerio.load(body);
                 try {
-                    let resultats = dom.window.document.querySelector('.search-results-list').querySelectorAll('.search-list-item');
+                    let resultats = $('.search-results-list .search-list-item');
 
                     for (let i = 0; i < resultats.length; i++) {
                         //TODO: parallelise
-                        let split = resultats[i].querySelector('.btn-details').getAttribute('href').split("-");
+                        let split = resultats.eq(i).find('.btn-details').attr('href').split("-");
                         appartIds.push(split[split.length-1])
                     }
 
@@ -85,36 +85,34 @@ export class PapAggregator implements IAggregator {
         return new Promise<IAppart>((resolve, reject) => {
             request(url, this._customHeaderRequest, (error, response, body) => {
                 try {
-                    const dom = new JSDOM(body);
+                    const $ = cheerio.load(body);
 
                     // Price
-                    var price = dom.window.document.querySelector('.item-price').textContent.replace(/\s/g, '').replace(/\./g, '').split('€')[0];
+                    var price = $('.item-price').text().replace(/\s/g, '').replace(/\./g, '').split('€')[0];
 
                     // Desc & departement
-                    var itemDesc = dom.window.document.querySelector('.item-description');
-                    var departement = itemDesc.querySelector('h2').textContent.replace(/\s/g, '');
-                    var description = itemDesc.querySelector('div').textContent.replace(/[\n\t\r]/g,"")
+                    var itemDesc = $('.item-description');
+                    var departement = itemDesc.find('h2').text().replace(/\s/g, '');
+                    var description = itemDesc.find('div').text().replace(/[\n\t\r]/g,"")
 
                     // SurfaceArea
-                    var itemTags = dom.window.document.querySelector('.item-tags').querySelectorAll('li');
+                    var itemTags = $('.item-tags').find('li');
                     var surfaceArea : string;
                     for (var i = 0; i < itemTags.length; i++) {
-                        itemTags[i].textContent.includes('m²');
-                        surfaceArea = itemTags[i].textContent.replace(/\s/g, '').split('m')[0];
+                        surfaceArea = itemTags.eq(i).text().replace(/\s/g, '').split('m')[0];
                     }
 
                     // Photos
                     var photos : string[] = [];
-                    var carouselElt = dom.window.document.querySelector('.owl-carousel');
-                    if (carouselElt) {
-                        var photosElts = carouselElt.querySelectorAll('img');
+                    var photosElts = $('.owl-carousel img');
+                    if (photosElts) {
                         for (var i = 0; i < photosElts.length; i++) {
-                            photos.push(photosElts[i].getAttribute('src'));
+                            photos.push(photosElts.eq(i).attr('src'));
                         }
                     }
 
                     resolve({
-                        title: "TITLE PLACEHOLDER", //TODO
+                        title: "", //TODO
                         departement: departement,
                         photos: photos,
                         surfaceArea: Number(surfaceArea),
