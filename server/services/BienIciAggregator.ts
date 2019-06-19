@@ -40,7 +40,7 @@ export class BienIciAggregator implements IAggregator {
                 try {
                     resp = JSON.parse(body);
                 } catch (e) {
-                    console.error(e, annoncesSearchUrl, body);
+                    console.error("Error parsing BienIci in GetAppartments", annoncesSearchUrl, e);
                 }
 
                 if (resp && resp.realEstateAds && resp.realEstateAds.length) {

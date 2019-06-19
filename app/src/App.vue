@@ -6,19 +6,24 @@
           Appart aggregator
           <span class="navbar-counter">{{apparts.length}}</span>
         </div>
-        <button class="navbar-validate" v-on:click="fetchAnnonces()">
+        <button class="navbar-right" v-on:click="fetchAnnonces()">
           Validate
           <i class="fa fa-refresh" aria-hidden="true"></i>
         </button>
-        <button class="navbar-validate" v-on:click="toggleConfig()">
+        <button class="navbar-right" v-on:click="toggleConfig()">
           Config
           <i class="fa fa-cog" aria-hidden="true"></i>
+        </button>
+        <button class="navbar-right navbar-only-starred" v-on:click="toggleOnlyStarred()">
+          Only Starred
+          <i v-if="!onlyStarred" class="fa fa-star-o" aria-hidden="true"></i>
+          <i v-if="onlyStarred" class="fa fa-star" aria-hidden="true"></i>
         </button>
       </div>
     </fixed-header>
     <div class="container">
       <config class="config" v-if="showConfig"></config>
-      <annonce v-for="annonce in apparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
+      <annonce v-for="annonce in displayedApparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
     </div>
   </div>
 </template>
@@ -39,7 +44,9 @@ import FixedHeader from 'vue-fixed-header';
 })
 export default class App extends Vue {
   public apparts: any[] = [];
+  public displayedApparts: any[] = [];
   public showConfig: boolean = false;
+  public onlyStarred: boolean = false;
 
   private notificationService!: NotificationService;
 
@@ -54,30 +61,37 @@ export default class App extends Vue {
     this.showConfig = !this.showConfig;
   }
 
-  public fetchAnnonces() {
-    this.$http.get('/api/apparts').then(
-      response => {
-        if (response.status == 200)
-        {
-          let currAppartIds = this.apparts.map(x => x.id);
-          let newIds = response.data.map((x: any) => x.id).filter((id: string) => currAppartIds.findIndex(i => i === id) == -1);
-          if (newIds.length != 0) {
-            new Notification(`${newIds.length} New appartments have been found !`);
-          }
+  public async fetchAnnonces() {
+    const responseApparts = await this.$http.get('/api/apparts');
 
-          this.apparts = response.data;
-          console.log(response.data);
+    if (responseApparts.status == 200)
+    {
+      let currAppartIds = this.apparts.map(x => x.id);
+      let newIds = responseApparts.data.map((x: any) => x.id).filter((id: string) => currAppartIds.findIndex(i => i === id) == -1);
+      if (newIds.length != 0) {
+        new Notification(`${newIds.length} New appartments have been found !`);
+      }
+    }
+    else
+    {
+      console.error(JSON.stringify(responseApparts));
+      this.apparts = [];
+      return;
+    }
 
-        }
-        else
-        {
-          console.error(JSON.stringify(response));
-          this.apparts = [];
-        }
-      }, response => {
-          console.error(JSON.stringify(response));
-          this.apparts = [];
-      });
+    // Set the starred appart
+    const responseStarredApparts = await this.$http.get('/api/apparts/starred');
+    let apparts: any[] = responseApparts.data;
+    for (const appart of apparts)
+      appart.isStarred = responseStarredApparts.data.findIndex((starredId: string) => appart.id == starredId) !== -1;
+
+    this.apparts = apparts;
+    this.computeDisplayedApparts();
+  }
+
+  public toggleOnlyStarred() {
+    this.onlyStarred = !this.onlyStarred;
+    this.computeDisplayedApparts();
   }
 
   private fetchAnnoncesLoop() {
@@ -87,6 +101,12 @@ export default class App extends Vue {
       }, 30000);
   }
 
+  private computeDisplayedApparts() {
+    if (this.onlyStarred)
+      this.displayedApparts = this.apparts.filter(x => x.isStarred);
+    else
+      this.displayedApparts = this.apparts;
+  }
 
 }
 </script>
@@ -182,7 +202,7 @@ button {
 }
 
 
-.navbar-validate {
+.navbar-right {
   position: relative;
   float: right;
   margin-top: 10px;
@@ -190,6 +210,10 @@ button {
   height: 30px;
   font-size: 16px;
   color: #718c00;
+}
+
+.navbar-only-starred {
+  color: #fece00;
 }
 
 .config {

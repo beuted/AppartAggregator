@@ -73,7 +73,7 @@ export class PapAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.error(e, annoncesSearchUrl, body)
+                    console.error("Error parsing Pap in GetAppartmentsIds", annoncesSearchUrl, e);
                     resolve([]);
                 }
             });
@@ -126,7 +126,7 @@ export class PapAggregator implements IAggregator {
                         origin: 'PaP'
                     });
                 } catch(e) {
-                    console.error(e, body);
+                    console.error("Error parsing Pap in GetAppartment", url, e);
                     resolve(null);
                 }
 

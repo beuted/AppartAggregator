@@ -64,50 +64,63 @@ async function Init() {
     });
 
     app.get("/api/apparts", async (req, res) => {
-        let apparts = appartCache.GetAppartsFiltered();
+        const apparts = appartCache.GetAppartsFiltered();
         res.status(200).send(apparts);
     });
 
     app.delete("/api/apparts", async (req, res) => {
-        let config = await appartCache.DeleteApparts();
+        const config = await appartCache.DeleteApparts();
         res.status(200).send(config);
     });
 
     app.get("/api/apparts/seloger", async (req, res) => {
-        let apparts = await seLogerAggregator.GetAppartments();
+        const apparts = await seLogerAggregator.GetAppartments();
         res.status(200).send(apparts);
     });
 
     app.get("/api/apparts/bienici", async (req, res) => {
-        let apparts = await bienIciAggregator.GetAppartments();
+        const apparts = await bienIciAggregator.GetAppartments();
         res.status(200).send(apparts);
     });
 
     app.get("/api/apparts/pap", async (req, res) => {
-        let apparts = await papAggregator.GetAppartments();
+        const apparts = await papAggregator.GetAppartments();
         res.status(200).send(apparts);
     });
 
     app.post("/api/apparts/filter-id/:id", (req, res) => {
         // Since id comes of uriComponentDecoded (but it should not) we have to url encode it.
-        var id: string = encodeURIComponent(req.params.id);
-        var value: boolean = req.body.value;
+        const id: string = encodeURIComponent(req.params.id);
+        const value: boolean = req.body.value;
         appartIdsFilter.Set(id, value);
         res.status(200).send();
     });
 
+    app.post("/api/apparts/starred/:id", (req, res) => {
+        // Since id comes of uriComponentDecoded (but it should not) we have to url encode it.
+        const id: string = encodeURIComponent(req.params.id);
+        const value: boolean = req.body.value;
+        appartCache.SetStarredAppart(id, value);
+        res.status(200).send();
+    });
+
+    app.get("/api/apparts/starred", (req, res) => {
+        const starredApparts = appartCache.GetStarredApparts();
+        res.status(200).send(starredApparts);
+    });
+
     app.get("/api/apparts/config", async (req, res) => {
-        let config = await configService.GetConfig();
+        const config = await configService.GetConfig();
         res.status(200).send(config);
     });
 
     app.post("/api/apparts/config/excluded-keyword", async (req, res) => {
-        let config = await appartKeywordsFilter.Set(req.body.keyword, req.body.excluded);
+        const config = await appartKeywordsFilter.Set(req.body.keyword, req.body.excluded);
         res.status(200).send(config);
     });
 
     app.post("/api/apparts/config/search-urls", async (req, res) => {
-        let config = await configService.SetSearchUrls(req.body);
+        const config = await configService.SetSearchUrls(req.body);
         res.status(200).send(config);
     });
 }

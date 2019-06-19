@@ -2,9 +2,13 @@
   <div class="panel">
     <div class="panel-heading">
       <a v-bind:href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
-      <button class="panel-heading-exclude" v-on:click="excludeId(annonce.id)">
+      <button class="panel-heading-button" v-on:click="excludeId(annonce.id)">
         <i v-if="!isExcluded" class="fa fa-trash"></i>
         <i v-if="isExcluded" class="fa fa-reply"></i>
+      </button>
+      <button class="panel-heading-button panel-heading-button-star" v-on:click="starId(annonce.id)">
+        <i v-if="annonce.isStarred" class="fa fa-star"></i>
+        <i v-if="!annonce.isStarred" class="fa fa-star-o"></i>
       </button>
     </div>
     <div class="panel-body" v-bind:style="{ display: isExcluded ? 'none' : 'block' }">
@@ -26,13 +30,18 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component
 export default class Annonce extends Vue {
   @Prop()
-  private annonce!: string;
+  private annonce!: any;
 
   private isExcluded: boolean = false;
 
-  public excludeId(id: string) {
+  public async excludeId(id: string) {
+    await this.$http.post(`/api/apparts/filter-id/${id}`, { value: !this.isExcluded });
     this.isExcluded = !this.isExcluded;
-    this.$http.post(`/api/apparts/filter-id/${id}`, { value: this.isExcluded });
+  }
+
+  public async starId(id: string) {
+    await this.$http.post(`/api/apparts/starred/${id}`, { value: !this.annonce.isStarred });
+    this.annonce.isStarred = !this.annonce.isStarred;
   }
 }
 </script>
@@ -50,15 +59,19 @@ export default class Annonce extends Vue {
     font-weight: bold;
   }
 
-  .panel-heading-exclude {
+  .panel-heading-button {
     float: right;
-    width: 30px;
+    width: 35px;
     height: 30px;
     font-size: 22px;
     color: #e43c47;
     .fa-reply {
       color: #2c3e50;
     }
+  }
+
+  .panel-heading-button-star {
+    color: #fece00;
   }
 
   .panel-pictures {

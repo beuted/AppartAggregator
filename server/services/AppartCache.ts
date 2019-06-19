@@ -9,7 +9,8 @@ export class AppartCache {
     private _apparts: IAppart[] = [];
     private _listAggregators: IAggregator[];
     private _listFilters: IFilter[];
-    private resetApparts: boolean = false;;
+    private _resetApparts: boolean = false;
+    private _starredAppart: string[] = [];
 
     constructor(listAggregators: IAggregator[], listFilters: IFilter[]) {
         this._listAggregators = listAggregators;
@@ -31,7 +32,24 @@ export class AppartCache {
     }
 
     public DeleteApparts() {
-        this.resetApparts = true;
+        this._resetApparts = true;
+    }
+
+    public SetStarredAppart(id: string, value: boolean) {
+        console.log("Star", id, value);
+        var foundId = this._starredAppart.findIndex(i => i === id);
+        if (value && foundId <= -1) {
+            this._starredAppart.push(id);
+        }
+        if (!value && foundId > -1) {
+            this._starredAppart.splice(foundId, 1);
+        }
+
+        console.log(this._starredAppart)
+    }
+
+    public GetStarredApparts() {
+        return this._starredAppart;
     }
 
     private async RefreshCacheLoop() {
@@ -50,8 +68,8 @@ export class AppartCache {
         }
 
         // Avoid race condition and reset the appart when all processing have been done
-        if (this.resetApparts) {
-            this.resetApparts = false;
+        if (this._resetApparts) {
+            this._resetApparts = false;
             apparts = [];
             for (let i = 0; i < this._listAggregators.length; i++) {
                 this._listAggregators[i].ResetCache();

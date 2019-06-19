@@ -98,7 +98,7 @@ export class SeLogerAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.error(e, annoncesSearchUrl, body);
+                    console.error("Error parsing SeLoger in GetAppartmentsIds", annoncesSearchUrl, e);
                     resolve([]);
                 }
             });
@@ -147,7 +147,7 @@ export class SeLogerAggregator implements IAggregator {
                         origin: undefined
                     });
                 } catch(e) {
-                    console.error(e);
+                    console.error("Error parsing SeLoger in GetAnnonce", url, e);
                     resolve(null);
                 }
 
@@ -163,7 +163,7 @@ export class SeLogerAggregator implements IAggregator {
                 try {
                     resp = JSON.parse(body);
                 } catch(e) {
-                    console.error(`failed to parse body: ${body}`);
+                    console.error("Error parsing SeLoger in GetAnnonceJs", url, e);
                 }
 
                 try {
@@ -180,7 +180,7 @@ export class SeLogerAggregator implements IAggregator {
                         origin: undefined
                     });
                 } catch(e) {
-                    console.error(e, "url: ", url, "body: ", body);
+                    console.error("Error parsing SeLoger in GetAnnonceJs", url, e);
                 }
             });
         });
