@@ -38,6 +38,12 @@ export class AppartIdsFilter implements IFilter {
         storage.setItem('excludedIds', this._descExcludedIds);
     }
 
+    public Reset() {
+        console.log(`Resetting all excluded appart ids!`);
+        this._descExcludedIds = [];
+        storage.setItem('excludedIds', this._descExcludedIds);
+    }
+
     private IsAppartValid(appart: IAppart) {
         return !(<any>this._descExcludedIds).includes(appart.id);
     }

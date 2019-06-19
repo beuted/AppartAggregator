@@ -68,11 +68,6 @@ async function Init() {
         res.status(200).send(apparts);
     });
 
-    app.delete("/api/apparts", async (req, res) => {
-        const config = await appartCache.DeleteApparts();
-        res.status(200).send(config);
-    });
-
     app.get("/api/apparts/seloger", async (req, res) => {
         const apparts = await seLogerAggregator.GetAppartments();
         res.status(200).send(apparts);
@@ -93,6 +88,11 @@ async function Init() {
         const id: string = encodeURIComponent(req.params.id);
         const value: boolean = req.body.value;
         appartIdsFilter.Set(id, value);
+        res.status(200).send();
+    });
+
+    app.delete("/api/apparts/filter-id/all", async (req, res) => {
+        appartIdsFilter.Reset();
         res.status(200).send();
     });
 

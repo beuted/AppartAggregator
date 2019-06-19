@@ -6,15 +6,15 @@
           Appart aggregator
           <span class="navbar-counter">{{apparts.length}}</span>
         </div>
-        <button class="navbar-right" v-on:click="fetchAnnonces()">
-          Validate
-          <i class="fa fa-refresh" aria-hidden="true"></i>
+        <button class="navbar-right" v-on:click="FetchAnnonces()">
+          Fetch
+          <i class="fa fa-refresh" :class="[{ 'fa-spin': loading }]" aria-hidden="true"></i>
         </button>
-        <button class="navbar-right" v-on:click="toggleConfig()">
+        <button class="navbar-right" v-on:click="OpenConfig()">
           Config
           <i class="fa fa-cog" aria-hidden="true"></i>
         </button>
-        <button class="navbar-right navbar-only-starred" v-on:click="toggleOnlyStarred()">
+        <button class="navbar-right navbar-only-starred" :class="[{'navbar-only-starred-active': onlyStarred }]" v-on:click="toggleOnlyStarred()">
           Only Starred
           <i v-if="!onlyStarred" class="fa fa-star-o" aria-hidden="true"></i>
           <i v-if="onlyStarred" class="fa fa-star" aria-hidden="true"></i>
@@ -22,7 +22,8 @@
       </div>
     </fixed-header>
     <div class="container">
-      <config class="config" v-if="showConfig"></config>
+      <config v-if="showConfig" @close="CloseConfig">></config>
+      <div v-if="displayedApparts.length == 0" class="no-apparts-message">No apparts to show, try changing your filters or wait a bit 😊</div>
       <annonce v-for="annonce in displayedApparts" v-bind:annonce="annonce" v-bind:key="annonce.id"></annonce>
     </div>
   </div>
@@ -34,6 +35,7 @@ import Config from './components/Config.vue';
 import Annonce from './components/Annonce.vue';
 import { NotificationService } from './services/NotificationService';
 import FixedHeader from 'vue-fixed-header';
+import { HttpResponse } from 'vue-resource/types/vue_resource';
 
 @Component({
   components: {
@@ -47,46 +49,76 @@ export default class App extends Vue {
   public displayedApparts: any[] = [];
   public showConfig: boolean = false;
   public onlyStarred: boolean = false;
+  public loading: boolean = false;
 
   private notificationService!: NotificationService;
 
   public mounted() {
-    this.fetchAnnoncesLoop();
+    this.FetchAnnoncesLoop();
 
     this.notificationService = new NotificationService();
     this.notificationService.Init();
   }
 
-  public toggleConfig() {
-    this.showConfig = !this.showConfig;
+  public OpenConfig() {
+    this.showConfig = true;
   }
 
-  public async fetchAnnonces() {
-    const responseApparts = await this.$http.get('/api/apparts');
+  public CloseConfig() {
+    this.showConfig = false;
+    this.FetchAnnonces();
+  }
 
-    if (responseApparts.status == 200)
-    {
-      let currAppartIds = this.apparts.map(x => x.id);
-      let newIds = responseApparts.data.map((x: any) => x.id).filter((id: string) => currAppartIds.findIndex(i => i === id) == -1);
-      if (newIds.length != 0) {
-        new Notification(`${newIds.length} New appartments have been found !`);
-      }
-    }
-    else
-    {
-      console.error(JSON.stringify(responseApparts));
-      this.apparts = [];
+  public async FetchAnnonces() {
+    this.loading = true;
+    let responseApparts: HttpResponse;
+    try {
+      responseApparts = await this.$http.get('/api/apparts');
+    } catch (e) {
+      this.loading = false;
+      console.error('Error fetching "/api/apparts"', e);
       return;
     }
 
+    if (responseApparts.status != 200)
+    {
+      console.error('Error fetching "/api/apparts"', JSON.stringify(responseApparts));
+      this.loading = false;
+      return;
+    }
+
+    let currAppartIds = this.apparts.map(x => x.id);
+    let newIds = responseApparts.data.map((x: any) => x.id).filter((id: string) => currAppartIds.findIndex(i => i === id) == -1);
+    if (this.apparts.length != 0 && newIds.length != 0) {
+      new Notification(`${newIds.length} New appartments have been found !`);
+    }
+
+
     // Set the starred appart
-    const responseStarredApparts = await this.$http.get('/api/apparts/starred');
+    let responseStarredApparts: HttpResponse;
+    try {
+      responseStarredApparts = await this.$http.get('/api/apparts/starred');
+    } catch(e) {
+      this.loading = false;
+      console.error('Error fetching "/api/apparts/starred"', e);
+      return;
+    }
+
+    if (responseStarredApparts.status != 200)
+    {
+      console.error('Error fetching "/api/apparts/starred"', JSON.stringify(responseStarredApparts));
+      this.loading = false;
+      return;
+    }
+
     let apparts: any[] = responseApparts.data;
     for (const appart of apparts)
       appart.isStarred = responseStarredApparts.data.findIndex((starredId: string) => appart.id == starredId) !== -1;
 
     this.apparts = apparts;
     this.computeDisplayedApparts();
+
+    this.loading = false;
   }
 
   public toggleOnlyStarred() {
@@ -94,18 +126,19 @@ export default class App extends Vue {
     this.computeDisplayedApparts();
   }
 
-  private fetchAnnoncesLoop() {
-      this.fetchAnnonces()
+  private FetchAnnoncesLoop() {
+      this.FetchAnnonces()
       setTimeout(() => {
-        this.fetchAnnoncesLoop();
+        this.FetchAnnoncesLoop();
       }, 30000);
   }
 
   private computeDisplayedApparts() {
-    if (this.onlyStarred)
+    if (this.onlyStarred) {
       this.displayedApparts = this.apparts.filter(x => x.isStarred);
-    else
+    } else {
       this.displayedApparts = this.apparts;
+    }
   }
 
 }
@@ -135,6 +168,7 @@ a:hover {
 }
 
 button {
+  text-align: center;
   color: #2c3e50;
   border-width: 0;
   cursor: pointer;
@@ -160,6 +194,10 @@ button {
   }
 }
 
+.no-apparts-message {
+  text-align: center;
+}
+
 .navbar {
   width: 100%;
   min-width: 480px;
@@ -167,7 +205,7 @@ button {
   background-color: #f7f7f7;
   height: 50px;
   box-shadow: 0px 0px 5px 1px #cccccc;
-  z-index: 300;
+  z-index: 200;
 }
 
 .navbar.vue-fixed-header--isFixed {
@@ -216,16 +254,7 @@ button {
   color: #fece00;
 }
 
-.config {
-  position: fixed;
-  width: 900px;
-  @media screen and (max-width: 900px) {
-    width: 470px;
-  }
-  box-shadow: 0px 0px 0px 1000px hsla(0, 0%, 0%, 0.548);
-  top: 50%;
-  left: 50%;
-  /* bring your own prefixes */
-  transform: translate(-50%, -50%);
+.navbar-only-starred-active {
+  border: 1px solid #fece00;
 }
 </style>

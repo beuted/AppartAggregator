@@ -1,50 +1,53 @@
 <template>
-  <div class="panel">
-    <div class="panel-section">
-      <div class="panel-title">Excluded Keywords</div>
-    </div>
-    <div class="panel-section scroll-section">
-      <span class="label" v-for="excludedKeyword in config.excludedKeywords" :key="excludedKeyword">
-        {{excludedKeyword}}
-        <button v-on:click="UpdateExcludedKeyword(excludedKeyword, false)">
-          <i class="fa fa-times"></i>
-        </button>
-      </span>
-    </div>
-    <div class="panel-section">
-      <input type="text" v-model="keywordInput"/> <button class="label-button" v-on:click="UpdateExcludedKeyword(keywordInput, true)">Add</button>
-    </div>
+  <div>
+    <div class="panel-bg" v-on:click="CloseConfig()"></div>
+    <div class="panel">
+      <div class="panel-section">
+        <div class="panel-title">Excluded Keywords</div>
+        <button class="panel-close" v-on:click="CloseConfig()"><i class="fa fa-times-circle" aria-hidden="true"></i></button>
+      </div>
+      <div class="panel-section scroll-section">
+        <span class="label" v-for="excludedKeyword in config.excludedKeywords" :key="excludedKeyword">
+          {{excludedKeyword}}
+          <button v-on:click="UpdateExcludedKeyword(excludedKeyword, false)">
+            <i class="fa fa-times"></i>
+          </button>
+        </span>
+      </div>
+      <div class="panel-section">
+        <input type="text" v-model="keywordInput"/> <button class="label-button" v-on:click="UpdateExcludedKeyword(keywordInput, true)">Add</button>
+      </div>
 
-    <div class="panel-section">
-      <div class="panel-title">Excluded Ids</div>
-    </div>
-    <div class="panel-section scroll-section">
-      <span class="label" v-for="excludedId in config.excludedIds" :key="excludedId">{{excludedId}}</span>
-    </div>
+      <div class="panel-section">
+        <div class="panel-title">Excluded Ids</div>
+      </div>
+      <div class="panel-section scroll-section">
+        <span class="label" v-for="excludedId in config.excludedIds" :key="excludedId">{{excludedId}}</span>
+      </div>
+      <div class="panel-section">
+        <button class="reset-excluded-button" v-on:click="ResetExcluded()"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Reset all excluded Ids</button>
+      </div>
 
-    <div class="panel-section">
-      <div class="panel-title">SeLoger Search Url</div>
-    </div>
-    <div class="panel-section">
-      <input class="long-input" type="text" v-model="config.searchUrls.seLoger"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
-    </div>
+      <div class="panel-section">
+        <div class="panel-title">SeLoger Search Url</div>
+      </div>
+      <div class="panel-section">
+        <input class="long-input" type="text" v-model="config.searchUrls.seLoger"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+      </div>
 
-    <div class="panel-section">
-      <div class="panel-title">Pap Search Url</div>
-    </div>
-    <div class="panel-section">
-      <input class="long-input" type="text" v-model="config.searchUrls.pap"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
-    </div>
+      <div class="panel-section">
+        <div class="panel-title">Pap Search Url</div>
+      </div>
+      <div class="panel-section">
+        <input class="long-input" type="text" v-model="config.searchUrls.pap"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+      </div>
 
-    <div class="panel-section">
-      <div class="panel-title">BienIci Search Url</div>
-    </div>
-    <div class="panel-section">
-      <input class="long-input" type="text" v-model="config.searchUrls.bienIci"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
-    </div>
-
-    <div class="panel-section">
-      <button class="delete-all-button" v-on:click="DeleteApparts()"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Delete all apparts</button>
+      <div class="panel-section">
+        <div class="panel-title">BienIci Search Url</div>
+      </div>
+      <div class="panel-section">
+        <input class="long-input" type="text" v-model="config.searchUrls.bienIci"/> <button class="label-button" v-on:click="UpdateSearchUrls()">Update</button>
+      </div>
     </div>
   </div>
 </template>
@@ -70,83 +73,73 @@ export default class Annonce extends Vue {
       this.fetchConfig();
   }
 
-  public fetchConfig() {
-    this.$http.get('/api/apparts/config').then(response => {
-      if (response.status == 200)
-      {
-        this.config = response.data;
-      }
-      else
-      {
-        console.error(JSON.stringify(response));
-        this.config = null;
-      }
-    }, response => {
-        console.error(JSON.stringify(response));
-        this.config = null;
-    });
+  public async fetchConfig() {
+    const response = await this.$http.get('/api/apparts/config');
+    if (response.status == 200)
+    {
+      this.config = response.data;
+    }
+    else
+    {
+      console.error(JSON.stringify(response));
+      this.config = null;
+    }
+  }
+
+  public CloseConfig() {
+    this.$emit('close')
   }
 
   public async UpdateExcludedKeyword(keyword: string, excluded: boolean) {
-    return await this.$http.post('/api/apparts/config/excluded-keyword', { keyword: keyword, excluded: excluded}).then(response => {
-      if (response.status == 200)
-      {
-        if (excluded) {
-          this.config.excludedKeywords.push(keyword);
-        } else {
-          // Remove elements matching from list
-          for (var i = this.config.excludedKeywords.length - 1; i >= 0; i--) {
-            if(this.config.excludedKeywords[i] === keyword) {
-              this.config.excludedKeywords.splice(i, 1);
-            }
+    const response = await this.$http.post('/api/apparts/config/excluded-keyword', { keyword: keyword, excluded: excluded});
+    if (response.status == 200)
+    {
+      if (excluded) {
+        this.config.excludedKeywords.push(keyword);
+      } else {
+        // Remove elements matching from list
+        for (var i = this.config.excludedKeywords.length - 1; i >= 0; i--) {
+          if (this.config.excludedKeywords[i] === keyword) {
+            this.config.excludedKeywords.splice(i, 1);
           }
         }
       }
-      else
-      {
-        console.error(JSON.stringify(response));
-        this.config = null;
-      }
-    }, response => {
-        console.error(JSON.stringify(response));
-        this.config = null;
-    });
+    }
+    else
+    {
+      console.error(JSON.stringify(response));
+      this.config = null;
+    }
   }
 
   public async UpdateSearchUrls() {
-    return await this.$http.post('/api/apparts/config/search-urls', this.config.searchUrls).then(response => {
-      if (response.status == 200)
-      {
-        console.log('search urls updated');
-      }
-      else
-      {
-        console.error(JSON.stringify(response));
-        this.config = null;
-      }
-    }, response => {
-        console.error(JSON.stringify(response));
-        this.config = null;
-    });
+    const response = await this.$http.post('/api/apparts/config/search-urls', this.config.searchUrls);
+    if (response.status == 200)
+    {
+      console.log('search urls updated');
+    }
+    else
+    {
+      console.error(JSON.stringify(response));
+      this.config = null;
+    }
   }
 
-  public async DeleteApparts() {
-    var r = confirm('You are about to delete all apparts');
+  public async ResetExcluded() {
+    var r = confirm('You are about to reset all excluded ids');
     if (!r)
       return;
 
-    return await this.$http.delete('/api/apparts').then(response => {
-      if (response.status == 200)
-      {
-        console.log('All apparts have been deleted');
-      }
-      else
-      {
-        console.error(JSON.stringify(response));
-      }
-    }, response => {
-        console.error(JSON.stringify(response));
-    });
+    const response = await this.$http.delete(`/api/apparts/filter-id/all`);
+    if (response.status == 200)
+    {
+      console.log('All apparts have been deleted');
+      await this.fetchConfig();
+    }
+    else
+    {
+      console.error(JSON.stringify(response));
+    }
   }
 }
 
@@ -155,14 +148,42 @@ export default class Annonce extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+  .panel-bg {
+    position: fixed;
+      top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 299;
+    background-color: hsla(0, 0%, 0%, 0.548);
+  }
+
   .panel {
-    background-color: #f7f7f7;
+    z-index: 300;
+    position: fixed;
+    width: 900px;
+    @media screen and (max-width: 900px) {
+      width: 470px;
+    }
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
     padding: 15px 15px 15px 15px;
     margin-bottom: 15px;
+    background-color: #f7f7f7;
   }
 
   .panel-title {
+    display: inline-block;
     font-weight: bold;
+  }
+
+  .panel-close {
+    font-size: 20px;
+    height: 35px;
+    width: 35px;
+    float: right;
   }
 
   .label {
@@ -190,7 +211,7 @@ export default class Annonce extends Vue {
     }
   }
 
-  .delete-all-button {
+  .reset-excluded-button {
     margin-top: 15px;
     padding: 5px;
     background-color: #e43c47;
