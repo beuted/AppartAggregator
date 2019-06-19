@@ -1,5 +1,5 @@
 <template>
-  <div class="panel">
+  <div class="panel" :class="[{'starred': annonce.isStarred}]">
     <div class="panel-heading">
       <a v-bind:href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
       <button class="panel-heading-button" v-on:click="excludeId(annonce.id)">
@@ -11,7 +11,7 @@
         <i v-if="!annonce.isStarred" class="fa fa-star-o"></i>
       </button>
     </div>
-    <div class="panel-body" v-bind:style="{ display: isExcluded ? 'none' : 'block' }">
+    <div class="panel-body" v-if="!isExcluded">
       <div>
         <p>{{annonce.description}}</p>
       </div>
@@ -53,6 +53,9 @@ export default class Annonce extends Vue {
     padding: 15px;
     margin-bottom: 15px;
     border-left: 4px solid #718c00;
+    &.starred {
+      border-left: 4px solid #fece00;
+    }
   }
 
   .panel-heading {
