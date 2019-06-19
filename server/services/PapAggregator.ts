@@ -67,7 +67,7 @@ export class PapAggregator implements IAggregator {
 
                     for (let i = 0; i < resultats.length; i++) {
                         //TODO: parallelise
-                        let split = resultats[i].querySelector('.btn-4').getAttribute('href').split("-");
+                        let split = resultats[i].querySelector('.btn-details').getAttribute('href').split("-");
                         appartIds.push(split[split.length-1])
                     }
 
