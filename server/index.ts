@@ -103,8 +103,9 @@ async function Init() {
     app.post("/api/apparts/:id/notes", (req, res) => {
         // Since id comes of uriComponentDecoded (but it should not) we have to url encode it.
         const id: string = encodeURIComponent(req.params.id);
-        const value: boolean = req.body.value;
-        appartCache.SetAppartNote(id, value);
+        const value: string = req.body.value;
+        console.log(value)
+        appartCache.SetAppartNotes(id, value);
         res.status(200).send();
     });
 

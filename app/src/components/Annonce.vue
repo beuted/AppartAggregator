@@ -21,9 +21,10 @@
         </div>
       </div>
       <div class="panel-body-notes">
-        <textarea v-if="annonce.notes" class="panel-body-notes-text" maxlength=3000 v-model="annonce.notes"></textarea>
-        <button v-if="!annonce.notes" class="panel-body-notes-button" v-on:click="InitAnnonce()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-        <button v-if="annonce.notes" class="panel-body-notes-button" v-on:click="SaveAnnonce()"><i class="fa fa-save" aria-hidden="true"></i></button>
+        <textarea v-if="notesActivated" class="panel-body-notes-text" maxlength=3000 v-model="notes"></textarea>
+        <button v-if="!notesActivated" class="panel-body-notes-button" v-on:click="InitAnnonceNotes()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+        <button v-if="notesActivated" :disabled="HasNoteChanged" class="panel-body-notes-button" v-on:click="SaveAnnonceNotes()"><i class="fa fa-save" aria-hidden="true"></i></button>
+        <button v-if="notesActivated" :disabled="HasNoteChanged" class="panel-body-notes-button panel-body-notes-button-trash" v-on:click="DeleteAnnonceNotes()"><i class="fa fa-trash" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
@@ -38,6 +39,13 @@ export default class Annonce extends Vue {
   private annonce!: any;
 
   private isExcluded: boolean = false;
+  private notesActivated: boolean = false;
+  private notes: string;
+
+   public mounted() {
+     this.notes = this.annonce.notes;
+     this.notesActivated = !!this.annonce.notes;
+   }
 
   public async excludeId(id: string) {
     await this.$http.post(`/api/apparts/filter-id/${id}`, { value: !this.isExcluded });
@@ -49,12 +57,30 @@ export default class Annonce extends Vue {
     this.annonce.isStarred = !this.annonce.isStarred;
   }
 
-  public InitAnnonce() {
-    Vue.set(this.annonce, 'notes', 'Notes:\r\n');
+  public InitAnnonceNotes() {
+    this.notesActivated = true;
+    this.notes = 'Notes:\r\n';
   }
 
-  public async SaveAnnonce() {
-    await this.$http.post(`/api/apparts/${this.annonce.id}/notes`, { value: !this.annonce.notes });
+  public async SaveAnnonceNotes() {
+    try {
+      await this.$http.post(`/api/apparts/${this.annonce.id}/notes`, { value: this.notes });
+    } catch (e) {
+      console.error(`Error fecthing "/api/apparts/${this.annonce.id}/notes"`, e);
+      return;
+    }
+    Vue.set(this.annonce, 'notes', this.notes);
+  }
+
+  public async DeleteAnnonceNotes() {
+    this.notesActivated = false;
+    this.notes = null;
+    await this.$http.post(`/api/apparts/${this.annonce.id}/notes`, { value: null });
+  }
+
+  public get HasNoteChanged() {
+    console.log(this.notes != this.annonce.notes);
+    return this.notes != this.annonce.notes;
   }
 }
 </script>
@@ -119,6 +145,13 @@ export default class Annonce extends Vue {
     &:hover {
       background-color: #2c3e50;
     }
+    &:disabled {
+      background-color: #2c3e50;
+    }
+  }
+
+  .panel-body-notes-button-trash {
+    margin-left: 5px;
   }
 
   .panel-body-notes-text {

@@ -74,7 +74,8 @@ export class SeLogerAggregator implements IAggregator {
             surfaceArea: annonce.surfaceArea,
             url: annonce.url,
             id: id,
-            origin: 'SeLoger'
+            origin: 'SeLoger',
+            notes: null
         };
     }
 
