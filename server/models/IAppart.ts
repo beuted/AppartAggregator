@@ -1,6 +1,6 @@
 export interface IAppart{
     title: string,
-    description: string,        
+    description: string,
     departement: string,
     photos: string[],
     price: number
@@ -10,4 +10,5 @@ export interface IAppart{
     url: string
     id: string
     origin: string,
+    notes: string | null
 }

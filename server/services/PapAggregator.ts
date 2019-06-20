@@ -121,7 +121,8 @@ export class PapAggregator implements IAggregator {
                         price: Number(price),
                         adCreatedByPro: false,
                         id: id,
-                        origin: 'PaP'
+                        origin: 'PaP',
+                        notes: null
                     });
                 } catch(e) {
                     console.error("Error parsing Pap in GetAppartment", url, e);

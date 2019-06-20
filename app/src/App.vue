@@ -156,6 +156,9 @@ body {
   margin: 0;
   padding: 0;
 }
+button {
+  font-size: 16px;
+}
 
 a {
   color: #4183c4;

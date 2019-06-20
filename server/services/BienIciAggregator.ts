@@ -56,7 +56,8 @@ export class BienIciAggregator implements IAggregator {
                             surfaceArea: resp.realEstateAds[i].surfaceArea,
                             url: `https://www.bienici.com/annonce/location/${resp.realEstateAds[i].city.replace(' ', '-')}/appartement/${resp.realEstateAds[i].roomsQuantity}pieces/${resp.realEstateAds[i].id}`,
                             id: resp.realEstateAds[i].id,
-                            origin: 'BienIci'
+                            origin: 'BienIci',
+                            notes: null
                         });
                     }
                 }

@@ -140,7 +140,8 @@ export class SeLogerAggregator implements IAggregator {
                         price: undefined,
                         adCreatedByPro: undefined,
                         id: undefined,
-                        origin: undefined
+                        origin: undefined,
+                        notes: null
                     });
                 } catch(e) {
                     console.error("Error parsing SeLoger in GetAnnonce", url, e);
@@ -173,7 +174,8 @@ export class SeLogerAggregator implements IAggregator {
                         url:  undefined,
                         adCreatedByPro: undefined,
                         id: undefined,
-                        origin: undefined
+                        origin: undefined,
+                        notes: null
                     });
                 } catch(e) {
                     console.error("Error parsing SeLoger in GetAnnonceJs", url, e);

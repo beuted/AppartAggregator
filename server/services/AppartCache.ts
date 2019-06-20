@@ -48,6 +48,16 @@ export class AppartCache {
         console.log(this._starredAppart)
     }
 
+    public SetAppartNote(id: string, notes: string) {
+        var foundId = this._starredAppart.findIndex(i => i === id);
+        if (foundId <= -1) {
+            console.error(`Cannot add notes to appart id ${id}, it cannot be found in cache.`);
+            return;
+        }
+        //TODO: ca va pas marcher parce que note doit etre dan sle cache de chaque appart
+        this._apparts[foundId].notes = notes;
+    }
+
     public GetStarredApparts() {
         return this._starredAppart;
     }

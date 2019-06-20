@@ -1,7 +1,7 @@
 <template>
   <div class="panel" :class="[{'starred': annonce.isStarred}]">
     <div class="panel-heading">
-      <a v-bind:href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
+      <a :href="annonce.url" target="_blank">{{annonce.departement}} - {{annonce.price}}€ - {{annonce.surfaceArea}}m² - {{annonce.origin}}</a>
       <button class="panel-heading-button" v-on:click="excludeId(annonce.id)">
         <i v-if="!isExcluded" class="fa fa-trash"></i>
         <i v-if="isExcluded" class="fa fa-reply"></i>
@@ -19,6 +19,11 @@
         <div class="panel-pictures-box">
           <img class="panel-pictures-box-item" v-for="picture in annonce.photos" v-bind:src="picture" v-bind:key="picture">
         </div>
+      </div>
+      <div class="panel-body-notes">
+        <textarea v-if="annonce.notes" class="panel-body-notes-text" maxlength=3000 v-model="annonce.notes"></textarea>
+        <button v-if="!annonce.notes" class="panel-body-notes-button" v-on:click="InitAnnonce()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+        <button v-if="annonce.notes" class="panel-body-notes-button" v-on:click="SaveAnnonce()"><i class="fa fa-save" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
@@ -42,6 +47,14 @@ export default class Annonce extends Vue {
   public async starId(id: string) {
     await this.$http.post(`/api/apparts/starred/${id}`, { value: !this.annonce.isStarred });
     this.annonce.isStarred = !this.annonce.isStarred;
+  }
+
+  public InitAnnonce() {
+    Vue.set(this.annonce, 'notes', 'Notes:\r\n');
+  }
+
+  public async SaveAnnonce() {
+    await this.$http.post(`/api/apparts/${this.annonce.id}/notes`, { value: !this.annonce.notes });
   }
 }
 </script>
@@ -82,6 +95,7 @@ export default class Annonce extends Vue {
     overflow-y: hidden;
     height: 220px;
   }
+
   .panel-pictures-box {
     width: max-content;
   }
@@ -91,5 +105,25 @@ export default class Annonce extends Vue {
     margin-right: 10px;
     height: 200px;
     float:left;
+  }
+
+  .panel-body-notes {
+    margin-top: 15px;
+  }
+
+  .panel-body-notes-button {
+    width: 35px;
+    height: 30px;
+    background-color: #718c00;
+    color: #fff;
+    &:hover {
+      background-color: #2c3e50;
+    }
+  }
+
+  .panel-body-notes-text {
+    width: 100%;
+    resize: vertical;
+    height: 100px;
   }
 </style>
