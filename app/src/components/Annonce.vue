@@ -24,7 +24,7 @@
         <textarea v-if="notesActivated" class="panel-body-notes-text" maxlength=3000 v-model="notes"></textarea>
         <button v-if="!notesActivated" class="panel-body-notes-button" v-on:click="InitAnnonceNotes()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
         <button v-if="notesActivated" :disabled="!HasNoteChanged" class="panel-body-notes-button" v-on:click="SaveAnnonceNotes()"><i class="fa fa-save" aria-hidden="true"></i></button>
-        <button v-if="notesActivated" :disabled="!HasNoteChanged" class="panel-body-notes-button panel-body-notes-button-trash" v-on:click="DeleteAnnonceNotes()"><i class="fa fa-trash" aria-hidden="true"></i></button>
+        <button v-if="notesActivated" class="panel-body-notes-button panel-body-notes-button-trash" v-on:click="DeleteAnnonceNotes()"><i class="fa fa-trash" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
