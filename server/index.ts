@@ -104,7 +104,6 @@ async function Init() {
         // Since id comes of uriComponentDecoded (but it should not) we have to url encode it.
         const id: string = encodeURIComponent(req.params.id);
         const value: string = req.body.value;
-        console.log(value)
         appartCache.SetAppartNotes(id, value);
         res.status(200).send();
     });

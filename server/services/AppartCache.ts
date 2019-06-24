@@ -37,7 +37,7 @@ export class AppartCache {
     }
 
     public SetStarredAppart(id: string, value: boolean) {
-        console.log(`Item ${value ? 'starred': 'unstarred'}: `, id);
+        console.log(`Action: ${value ? 'starred': 'unstarred'} on annonce: ${id}`);
         var foundId = this._starredAppart.findIndex(i => i === id);
         if (value && foundId <= -1) {
             this._starredAppart.push(id);
@@ -50,6 +50,8 @@ export class AppartCache {
     }
 
     public SetAppartNotes(id: string, notes: string) {
+        console.log(`Action: note modified on annonce: ${id}`);
+
         var foundId = this._apparts.findIndex(x => x.id === id);
         if (foundId <= -1) {
             console.error(`Cannot add notes to appart id ${id}, it cannot be found in cache.`);
