@@ -17,7 +17,7 @@
       </div>
       <div class="panel-pictures" v-if="annonce.photos.length != 0">
         <div class="panel-pictures-box">
-          <img class="panel-pictures-box-item" v-for="picture in annonce.photos" v-bind:src="picture" v-bind:key="picture">
+          <img class="panel-pictures-box-item" v-for="(picture, index) in annonce.photos" v-bind:src="picture" v-bind:key="index">
         </div>
       </div>
       <div class="panel-body-notes">
