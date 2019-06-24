@@ -3,7 +3,7 @@
     <fixed-header :threshold="100">
       <div class="navbar">
         <div class="navbar-title">
-          Appart aggregator
+          <span class="navbar-title-text">Appart aggregator</span>
           <span class="navbar-counter">{{apparts.length}}</span>
         </div>
         <button class="navbar-right" v-on:click="FetchAnnonces()">
@@ -230,6 +230,9 @@ button {
     padding-top: 10px;
     text-align: left;
     padding-left: 20px;
+    .navbar-title-text {
+      display: none;
+    }
   }
 }
 

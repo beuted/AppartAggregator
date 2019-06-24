@@ -40,7 +40,7 @@ export default class Annonce extends Vue {
 
   private isExcluded: boolean = false;
   private notesActivated: boolean = false;
-  private notes: string;
+  private notes: string | null = null;
 
    public mounted() {
      this.notes = this.annonce.notes;
