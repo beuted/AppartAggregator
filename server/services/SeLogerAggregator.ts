@@ -12,7 +12,7 @@ export class SeLogerAggregator implements IAggregator {
     private _period = 30000;
 
     constructor(private _configService: ConfigService) {
-        var maxQPS = 0.1;
+        var maxQPS = 0.04;
         this._rateLimitor = new RateLimitor(maxQPS);
 
         this._customHeaderRequest = {
