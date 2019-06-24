@@ -17,14 +17,18 @@ export class SeLogerAggregator implements IAggregator {
 
         this._customHeaderRequest = {
             headers: {
-                'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Language':'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6',
-                'Cache-Control':'max-age=0',
+                ':authority': 'www.seloger.com',
+                ':method:': 'GET',
+                ':path:': '/list.htm?ci=750103,750110,750111,750112,750120&idtt=1&idtypebien=1,2&naturebien=1&nb_pieces=2&pxmax=1600&surfacemin=50&tri=initial',
+                ':scheme:': 'https',
+                'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'accept-language':'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6',
+                'cache-control':'max-age=0',
                 'Connection':'keep-alive',
-                'Cookie': 'google; false; b8534ef1-92ca-40ed-96ef-3c44b6d7bc95; __uzma=; __uzmb=; __uzmc=; __uzmd=; bannerCookie=; dtCookie=|U2VMb2dlcnww; AMCVS_366134FA53DB27860A490D44%40AdobeOrg=1; s_cc=true; ry_ry-s3oa268o_realytics=eyJpZCI6InJ5X0Y2ODgxQzgxLTNFMDItNDhGNi1BRUI4LTgwQjIyRkYxQUE0NSIsImNpZCI6bnVsbCwiZXhwIjoxNTQ5NTYwMTAxNDE3fQ%3D%3D; _ga=GA1.2.870911222.1518024100; visitId=3cb0c454-33c5-42e6-8d5b-1cff7cbc448c; SearchAnnDep=75; FirstVisitSeLoger=07/02/2018 18:24:08; __gads=ID=c77edc14e4cd2fe8:T=1518024250:S=ALNI_Ma-03B7bHvjZ_6D_TzQU9aFRqa22A; s_sq=%5B%5BB%5D%5D; c_m=AL-SLG-ExclusifundefinedAlertes%20Emailundefined; stack_ch=%5B%5B%27Acces%2520Direct%27%2C%271518024172338%27%5D%2C%5B%27Alertes%2520Email%27%2C%271518118256074%27%5D%5D; stack_cmp=%5B%5B%27AL-SLG-Exclusif%27%2C%271518118256075%27%5D%5D; _gid=GA1.2.1449993640.1518214182; AMCV_366134FA53DB27860A490D44%40AdobeOrg=1099438348%7CMCIDTS%7C17572%7CMCMID%7C38460235659785561291137486940699461131%7CMCAAMLH-1518628900%7C6%7CMCAAMB-1518888146%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1518290546s%7CNONE%7CMCAID%7CNONE%7CMCSYNCSOP%7C411-17577%7CvVersion%7C2.1.0; s_dl=1; ry_ry-s3oa268o_so_realytics=eyJpZCI6InJ5X0Y2ODgxQzgxLTNFMDItNDhGNi1BRUI4LTgwQjIyRkYxQUE0NSIsImNpZCI6bnVsbCwib3JpZ2luIjpmYWxzZSwicmVmIjpudWxsLCJjb250IjpudWxsfQ%3D%3D; s_getNewRepeat=1518284223722-Repeat; _gat=1',
+                'Cookie': 'ASP.NET_SessionId=eqqtsxdzfd2qyvxbl1n112co; ABtestCreditImmo=ABtestCreditImmo_VersionB; SearchAnnDep=75; __uzma=maa433fcd9-9c2f-45c9-b248-513d078d620b5325; __uzmb=1560097845; theshield_consent={%22consentString%22:%22BOh4vD1Oh4vD1CyABBFRCW-AAAAn57_______9______9uz_Ov_v_f__33e87_9v_l_7_-___u_-3zd4u_1vf99yfm1-7etr3tp_87ues2_Xur__59__3z3_9phPrsk89r6337Ag%22}; _gcl_au=1.1.2132665933.1560090649; visitId=1560090648632-252172026; bannerCookie=1; AMCVS_366134FA53DB27860A490D44%40AdobeOrg=1; s_cc=true; mics_vid=6860682015; mics_lts=1560090649399; mics_uaid=web:1056:cbaabe30-640b-4fa0-8483-9b1d4d407f39; uid=cbaabe30-640b-4fa0-8483-9b1d4d407f39; mics_vid=6860682015; mics_lts=1560090649399; HistoAnnonces=PQAAAHicM6ypqTGAQUN9EDIwMFQwMLACI7A4VokaXcM6APo/D6Q=; FirstVisitSeLoger=09/06/2019 18:35:53; HistoRecherches=lwAAAHicDYtbCsIwEACvsl/1S5ptqJpi9ApeIbYrBMyDbIQKi3gUz+CpPIb5GgZmUM5+qc9MV0/RYtekNsze7keFaLq8BrdaVIPu+FFubqbgo9WtZKZkldzT7KpPkWHZuJxdqRQoVpYj4Kdt8O5D8iwn0AjhKyjK9GrXDwoN4GHS4zRqubjiGdD8AskWX3/1CTGH; newIsochrone=enabled; AMCV_366134FA53DB27860A490D44%40AdobeOrg=1099438348%7CMCIDTS%7C18072%7CMCMID%7C09475724884556414724070980757703979193%7CMCAAMLH-1561589635%7C6%7CMCAAMB-1562007505%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1561409905s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C2.1.0; s_visit=1; s_dl=1; c_m=undefinedlocalhost%3A8080Other%20Natural%20Referrersundefined; stack_ch=%5B%5B%27Autres%2520Sites%2520Organiques%27%2C%271560098131468%27%5D%2C%5B%27Acces%2520Direct%27%2C%271560156712942%27%5D%2C%5B%27Autres%2520Sites%2520Organiques%27%2C%271560984835964%27%5D%2C%5B%27Acces%2520Direct%27%2C%271561402705670%27%5D%2C%5B%27Autres%2520Sites%2520Organiques%27%2C%271561404629750%27%5D%5D; s_sq=%5B%5BB%5D%5D; s_getNewRepeat=1561407786568-Repeat; __uzmc=1744910940636; __uzmd=1561407789',
                 'Host':'www.seloger.com',
-                'Upgrade-Insecure-Requests':'1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36',
+                'upgrade-insecure-requests':'1',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
             }
         };
     }
