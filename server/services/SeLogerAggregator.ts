@@ -81,13 +81,16 @@ export class SeLogerAggregator implements IAggregator {
 
     private async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
-            let annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
+            const annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
+            console.log(annoncesSearchUrl);
             if (!annoncesSearchUrl || annoncesSearchUrl.length == 0) {
                 resolve([]);
                 return;
             }
 
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
+                console.log(body);
+
                 let appartIds: string[] = [];
                 const $ = cheerio.load(body);
                 try {
