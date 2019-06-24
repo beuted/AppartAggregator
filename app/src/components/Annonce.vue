@@ -79,7 +79,6 @@ export default class Annonce extends Vue {
   }
 
   public get HasNoteChanged() {
-    console.log(this.notes != this.annonce.notes);
     return this.notes != this.annonce.notes;
   }
 }
