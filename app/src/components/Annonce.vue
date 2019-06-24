@@ -23,8 +23,8 @@
       <div class="panel-body-notes">
         <textarea v-if="notesActivated" class="panel-body-notes-text" maxlength=3000 v-model="notes"></textarea>
         <button v-if="!notesActivated" class="panel-body-notes-button" v-on:click="InitAnnonceNotes()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-        <button v-if="notesActivated" :disabled="HasNoteChanged" class="panel-body-notes-button" v-on:click="SaveAnnonceNotes()"><i class="fa fa-save" aria-hidden="true"></i></button>
-        <button v-if="notesActivated" :disabled="HasNoteChanged" class="panel-body-notes-button panel-body-notes-button-trash" v-on:click="DeleteAnnonceNotes()"><i class="fa fa-trash" aria-hidden="true"></i></button>
+        <button v-if="notesActivated" :disabled="!HasNoteChanged" class="panel-body-notes-button" v-on:click="SaveAnnonceNotes()"><i class="fa fa-save" aria-hidden="true"></i></button>
+        <button v-if="notesActivated" :disabled="!HasNoteChanged" class="panel-body-notes-button panel-body-notes-button-trash" v-on:click="DeleteAnnonceNotes()"><i class="fa fa-trash" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
@@ -40,7 +40,7 @@ export default class Annonce extends Vue {
 
   private isExcluded: boolean = false;
   private notesActivated: boolean = false;
-  private notes: string | null = null;
+  private notes: string = '';
 
    public mounted() {
      this.notes = this.annonce.notes;
@@ -74,7 +74,7 @@ export default class Annonce extends Vue {
 
   public async DeleteAnnonceNotes() {
     this.notesActivated = false;
-    this.notes = null;
+    this.notes = '';
     await this.$http.post(`/api/apparts/${this.annonce.id}/notes`, { value: null });
   }
 
@@ -146,7 +146,8 @@ export default class Annonce extends Vue {
       background-color: #2c3e50;
     }
     &:disabled {
-      background-color: #2c3e50;
+      background-color: #718c004d;
+      cursor: default;
     }
   }
 

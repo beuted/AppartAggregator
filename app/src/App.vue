@@ -240,9 +240,10 @@ button {
   padding: 5px;
   font-size: 18px;
   border-radius: 5px;
+  margin-left: 10px;
+  vertical-align: middle;
   background-color: #718c00;
   color: #fff;
-  vertical-align: middle;
 }
 
 
