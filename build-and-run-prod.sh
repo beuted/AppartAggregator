@@ -1,5 +1,6 @@
 #!/bin/sh
 
+clear;
 echo ">>>>>>>> BUILDING FRONT";
 cd ./app/;
 npm install;

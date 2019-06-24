@@ -59,6 +59,10 @@ export class PapAggregator implements IAggregator {
     private async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             let annoncesSearchUrl = this._configService.GetPapSearchUrl();
+            if (!annoncesSearchUrl || annoncesSearchUrl.length == 0) {
+                resolve([]);
+                return;
+            }
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
                 let appartIds: string[] = [];
                 const $ = cheerio.load(body);

@@ -34,6 +34,11 @@ export class BienIciAggregator implements IAggregator {
     public GetAppartments(): Promise<IAppart[]> {
         return new Promise((resolve, reject) => {
             let annoncesSearchUrl = this._configService.GetBienIciSearchUrl();
+            if (!annoncesSearchUrl || annoncesSearchUrl.length == 0) {
+                resolve([]);
+                return;
+            }
+
             request(annoncesSearchUrl, this._customHeaderRequest, (error, response, body) => {
                 let apparts : IAppart[] = [];
                 let resp: IBienIciResponse;
