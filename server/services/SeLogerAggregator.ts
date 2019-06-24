@@ -17,10 +17,6 @@ export class SeLogerAggregator implements IAggregator {
 
         this._customHeaderRequest = {
             headers: {
-                'authority': 'www.seloger.com',
-                'method': 'GET',
-                'path': '/list.htm?ci=750103,750110,750111,750112,750120&idtt=1&idtypebien=1,2&naturebien=1&nb_pieces=2&pxmax=1600&surfacemin=50&tri=initial',
-                'scheme': 'https',
                 'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                 'accept-language':'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6',
                 'cache-control':'max-age=0',
@@ -86,18 +82,21 @@ export class SeLogerAggregator implements IAggregator {
     private async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             const annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
-            console.log(annoncesSearchUrl);
             if (!annoncesSearchUrl || annoncesSearchUrl.length == 0) {
                 resolve([]);
                 return;
             }
 
             request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
-                console.log(body);
-
                 let appartIds: string[] = [];
                 const $ = cheerio.load(body);
                 try {
+                    if ($(`input[id='recaptcha_response']`).length > 0) {
+                        console.warn('[SeLoger] Request throttled !');
+                        resolve([]);
+                        return;
+                    }
+
                     let resultats = $('.liste_resultat').find('.c-pa-list .c-pa-link');
 
                     for (let i = 0; i < resultats.length; i++) {
