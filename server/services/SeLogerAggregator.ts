@@ -9,7 +9,7 @@ export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
-    private _period = 30000;
+    private _period = 180000;
 
     constructor(private _configService: ConfigService) {
         var maxQPS = 0.04;
