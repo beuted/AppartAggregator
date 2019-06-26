@@ -1,6 +1,5 @@
 import * as express from 'express';
 import * as http from 'http';
-import * as socketio from 'socket.io';
 import { AppartCache } from './services/AppartCache';
 import { BienIciAggregator }  from './services/BienIciAggregator';
 import { SeLogerAggregator } from './services/SeLogerAggregator';
@@ -9,6 +8,7 @@ import { AppartKeywordsFilter } from './services/AppartKeywordsFilter';
 import { AppartIdsFilter } from './services/AppartIdsFilter';
 import { ConfigService } from './services/ConfigService';
 import * as storage from 'node-persist';
+import * as moment from 'moment';
 
 require('source-map-support').install(); // For .js.map's
 process.on('unhandledRejection', console.error); // Better logging in promises
@@ -48,7 +48,7 @@ async function Init() {
     // Serve client files
     app.use(express.static('../app/dist'));
     const server = app.listen(port, () => {
-        console.log('AggregAppart is running at localhost:' + port);
+        console.log(`${moment().format()}: AggregAppart is running at localhost: ${port}`);
     });
 
     const bodyParser = require('body-parser');

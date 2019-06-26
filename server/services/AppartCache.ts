@@ -1,7 +1,8 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
 import { IAggregator } from './IAggregator';
-import * as storage from 'node-persist';
+import * as storage from 'node-persist'
+import * as moment from 'moment';
 
 // Poorly named class, Each Aggregator has its own cache
 export class AppartCache {
@@ -37,7 +38,7 @@ export class AppartCache {
     }
 
     public SetStarredAppart(id: string, value: boolean) {
-        console.log(`Action: ${value ? 'starred': 'unstarred'} on annonce: ${id}`);
+        console.log(`${moment().format()}: Action: ${value ? 'starred': 'unstarred'} on annonce: ${id}`);
         var foundId = this._starredAppart.findIndex(i => i === id);
         if (value && foundId <= -1) {
             this._starredAppart.push(id);
@@ -50,11 +51,11 @@ export class AppartCache {
     }
 
     public SetAppartNotes(id: string, notes: string) {
-        console.log(`Action: note modified on annonce: ${id}`);
+        console.log(`${moment().format()}: Action: note modified on annonce: ${id}`);
 
         var foundId = this._apparts.findIndex(x => x.id === id);
         if (foundId <= -1) {
-            console.error(`Cannot add notes to appart id ${id}, it cannot be found in cache.`);
+            console.error(`${moment().format()}: Cannot add notes to appart id ${id}, it cannot be found in cache.`);
             return;
         }
         this._apparts[foundId].notes = notes;

@@ -3,7 +3,8 @@ import * as cheerio from 'cheerio';
 import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
-import { ConfigService } from './ConfigService';;
+import { ConfigService } from './ConfigService';
+import * as moment from 'moment';
 
 export class SeLogerAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -56,6 +57,7 @@ export class SeLogerAggregator implements IAggregator {
     }
 
     private async GetAppartment(id: string): Promise<IAppart> {
+        console.log(`${moment().format()}: [SeLoger] Sending request to Get Appartment id: ${id}`);
         let annonceUrl = decodeURIComponent(id);
         let annonce = await this.GetAnnonce(annonceUrl);
         if (!annonce)
@@ -81,6 +83,8 @@ export class SeLogerAggregator implements IAggregator {
 
     private async GetAppartmentsIds(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
+
+            console.log(`${moment().format()}: [SeLoger] Sending request to get all appartment ids`);
             const annoncesSearchUrl = this._configService.GetSeLogerSearchUrl();
             if (!annoncesSearchUrl || annoncesSearchUrl.length == 0) {
                 resolve([]);
@@ -92,7 +96,8 @@ export class SeLogerAggregator implements IAggregator {
                 const $ = cheerio.load(body);
                 try {
                     if ($(`input[id='recaptcha_response']`).length > 0) {
-                        console.warn('[SeLoger] Request throttled !');
+                        this._period += 1000;
+                        console.warn(`${moment().format()}: [SeLoger] Request throttled ! Refresh period moved to ${this._period / 1000} sec`);
                         resolve([]);
                         return;
                     }
@@ -106,7 +111,7 @@ export class SeLogerAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.error("Error parsing SeLoger in GetAppartmentsIds", annoncesSearchUrl, e);
+                    console.error(`${moment().format()}: [SeLoger] Error parsing SeLoger in GetAppartmentsIds`, annoncesSearchUrl, e);
                     resolve([]);
                 }
             });
@@ -156,7 +161,7 @@ export class SeLogerAggregator implements IAggregator {
                         notes: null
                     });
                 } catch(e) {
-                    console.error("Error parsing SeLoger in GetAnnonce", url, e);
+                    console.error(`${moment().format()}: Error parsing SeLoger in GetAnnonce`, url, e);
                     resolve(null);
                 }
 
@@ -172,7 +177,7 @@ export class SeLogerAggregator implements IAggregator {
                 try {
                     resp = JSON.parse(body);
                 } catch(e) {
-                    console.error("Error parsing SeLoger in GetAnnonceJs", url, e);
+                    console.error(`${moment().format()}: Error parsing SeLoger in GetAnnonceJs`, url, e);
                 }
 
                 try {
@@ -190,7 +195,7 @@ export class SeLogerAggregator implements IAggregator {
                         notes: null
                     });
                 } catch(e) {
-                    console.error("Error parsing SeLoger in GetAnnonceJs", url, e);
+                    console.error(`${moment().format()}: Error parsing SeLoger in GetAnnonceJs`, url, e);
                 }
             });
         });

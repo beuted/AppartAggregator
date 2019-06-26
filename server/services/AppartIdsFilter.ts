@@ -1,6 +1,7 @@
 import { IAppart } from '../models/IAppart';
 import { IFilter } from './IFilter';
 import * as storage from 'node-persist';
+import * as moment from 'moment';
 
 export class AppartIdsFilter implements IFilter {
     private _descExcludedIds: string[];
@@ -28,10 +29,10 @@ export class AppartIdsFilter implements IFilter {
     public Set(id: string, value: boolean) {
         var idPosInArray = this._descExcludedIds.indexOf(id);
         if (idPosInArray == -1 && !!value) {
-            console.log(`Excluding appart id: ${id}`);
+            console.log(`${moment().format()}: Excluding appart id: ${id}`);
             this._descExcludedIds.push(id);
         } else if (idPosInArray != -1 && !value) {
-            console.log(`Stop excluding appart id: ${id}`);
+            console.log(`${moment().format()}: Stop excluding appart id: ${id}`);
             this._descExcludedIds.splice(idPosInArray, 1);
         }
 
@@ -39,7 +40,7 @@ export class AppartIdsFilter implements IFilter {
     }
 
     public Reset() {
-        console.log(`Resetting all excluded appart ids!`);
+        console.log(`${moment().format()}: Resetting all excluded appart ids!`);
         this._descExcludedIds = [];
         storage.setItem('excludedIds', this._descExcludedIds);
     }

@@ -3,6 +3,7 @@ import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { IBienIciResponse } from '../models/IBienIciResponse';
 import { ConfigService } from './ConfigService';
+import * as moment from 'moment';
 
 export class BienIciAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -45,7 +46,7 @@ export class BienIciAggregator implements IAggregator {
                 try {
                     resp = JSON.parse(body);
                 } catch (e) {
-                    console.error("Error parsing BienIci in GetAppartments", annoncesSearchUrl, e);
+                    console.error(`${moment().format()}: Error parsing BienIci in GetAppartments`, annoncesSearchUrl, e);
                 }
 
                 if (resp && resp.realEstateAds && resp.realEstateAds.length) {

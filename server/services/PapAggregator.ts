@@ -4,6 +4,7 @@ import { IAppart } from '../models/IAppart';
 import { IAggregator } from './IAggregator';
 import { RateLimitor } from './RateLimitor';
 import { ConfigService } from './ConfigService';
+import * as moment from 'moment';
 
 export class PapAggregator implements IAggregator {
     private _customHeaderRequest: any;
@@ -77,7 +78,7 @@ export class PapAggregator implements IAggregator {
 
                     resolve(appartIds);
                 } catch(e) {
-                    console.error("Error parsing Pap in GetAppartmentsIds", annoncesSearchUrl, e);
+                    console.error(`${moment().format()}: Error parsing Pap in GetAppartmentsIds`, annoncesSearchUrl, e);
                     resolve([]);
                 }
             });
@@ -129,7 +130,7 @@ export class PapAggregator implements IAggregator {
                         notes: null
                     });
                 } catch(e) {
-                    console.error("Error parsing Pap in GetAppartment", url, e);
+                    console.error(`${moment().format()}: Error parsing Pap in GetAppartment`, url, e);
                     resolve(null);
                 }
 
