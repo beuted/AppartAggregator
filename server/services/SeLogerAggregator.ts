@@ -12,7 +12,7 @@ export class SeLogerAggregator implements IAggregator {
     private _period = 30000;
 
     constructor(private _configService: ConfigService) {
-        var maxQPS = 0.1;
+        var maxQPS = 0.04;
         this._rateLimitor = new RateLimitor(maxQPS);
     }
 
@@ -211,7 +211,7 @@ export class SeLogerAggregator implements IAggregator {
                 'upgrade-insecure-requests':'1',
                 'user-agent': Math.floor(Math.random()*10E10),
             },
-            proxy: "http://95.217.44.145:8080",
+            proxy: "http://178.128.254.26:8080",
         };
     }
 }
