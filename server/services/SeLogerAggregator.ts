@@ -7,26 +7,13 @@ import { ConfigService } from './ConfigService';
 import * as moment from 'moment';
 
 export class SeLogerAggregator implements IAggregator {
-    private _customHeaderRequest: any;
     private _rateLimitor: RateLimitor;
     private _apparts: { [id: string]: IAppart } = {};
-    private _period = 180000;
+    private _period = 30000;
 
     constructor(private _configService: ConfigService) {
-        var maxQPS = 0.04;
+        var maxQPS = 0.1;
         this._rateLimitor = new RateLimitor(maxQPS);
-
-        this._customHeaderRequest = {
-            headers: {
-                'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'accept-language':'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6',
-                'cache-control':'max-age=0',
-                'Connection':'keep-alive',
-                'Host':'www.seloger.com',
-                'upgrade-insecure-requests':'1',
-                'user-agent': 'AdsBot-Google',
-            }
-        };
     }
 
     public Start() {
@@ -90,7 +77,14 @@ export class SeLogerAggregator implements IAggregator {
                 return;
             }
 
-            request(annoncesSearchUrl, this._customHeaderRequest, async (error, response, body) => {
+
+            request(annoncesSearchUrl, this.getRequestOptions(), async (error, response, body) => {
+                if (error) {
+                    console.error(`${moment().format()}: Error querying SeLoger in GetAppartmentsIds for url ${annoncesSearchUrl}: ${error}`);
+                    resolve([]);
+                    return;
+                }
+
                 let appartIds: string[] = [];
                 const $ = cheerio.load(body);
                 try {
@@ -121,7 +115,12 @@ export class SeLogerAggregator implements IAggregator {
 
     private async GetAnnonce(url: string): Promise<IAppart> {
         return new Promise<IAppart>((resolve, reject) => {
-            request(url, this._customHeaderRequest, (error, response, body) => {
+            request(url, this.getRequestOptions(), (error, response, body) => {
+                if (error) {
+                    console.error(`${moment().format()}: Error querying SeLoger in GetAnnonce for url ${url}: ${error}`);
+                    resolve(null);
+                    return;
+                }
                 try {
                     const $ = cheerio.load(body);
                     let resume = $('.resume');
@@ -171,7 +170,7 @@ export class SeLogerAggregator implements IAggregator {
     private async GetAnnonceJs(id: string): Promise<IAppart> {
          return new Promise<IAppart>((resolve, reject) => {
             let url = this.GetDetailUrl(id);
-            request(url, this._customHeaderRequest, (error, response, body) => {
+            request(url, this.getRequestOptions(), (error, response, body) => {
                 let resp: any;
                 try {
                     resp = JSON.parse(body);
@@ -198,5 +197,21 @@ export class SeLogerAggregator implements IAggregator {
                 }
             });
         });
+    }
+
+    private getRequestOptions() {
+        return {
+            method: 'GET',
+            headers: {
+                'accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'accept-language':'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6',
+                'cache-control':'max-age=0',
+                'Connection':'keep-alive',
+                'Host':'www.seloger.com',
+                'upgrade-insecure-requests':'1',
+                'user-agent': Math.floor(Math.random()*10E10),
+            },
+            proxy: "http://95.217.44.145:8080",
+        };
     }
 }
