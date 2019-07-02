@@ -52,6 +52,7 @@ export class BienIciAggregator implements IAggregator {
                 if (resp && resp.realEstateAds && resp.realEstateAds.length) {
                     for (var i = 0; i < resp.realEstateAds.length; i++) {
                         apparts.push({
+                            timestamp: Date.now(),
                             title: resp.realEstateAds[i].title,
                             description: resp.realEstateAds[i].description.replace(/<br>/g, ' '),
                             departement: resp.realEstateAds[i].city,

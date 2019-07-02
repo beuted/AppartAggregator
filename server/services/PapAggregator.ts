@@ -117,6 +117,7 @@ export class PapAggregator implements IAggregator {
                     }
 
                     resolve({
+                        timestamp: Date.now(),
                         title: "", //TODO
                         departement: departement,
                         photos: photos,

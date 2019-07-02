@@ -82,6 +82,7 @@ export class AppartCache {
                 var appart = promiseResponses[i][j];
                 if (this._apparts.findIndex(x => x.id == appart.id) === -1) {
                     this._apparts.push(appart);
+                    this._apparts.sort((a,b) => a.timestamp < b.timestamp ? 1 : -1);
                     hasBeenModified = true;
                 }
             }

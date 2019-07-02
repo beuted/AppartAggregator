@@ -1,4 +1,5 @@
-export interface IAppart{
+export interface IAppart {
+    timestamp: number,
     title: string,
     description: string,
     departement: string,

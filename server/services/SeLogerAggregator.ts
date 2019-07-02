@@ -53,7 +53,8 @@ export class SeLogerAggregator implements IAggregator {
         let jsId = jsIdParts[jsIdParts.length-1].split('.')[0];
         let annonceJs = await this.GetAnnonceJs(jsId);
         return {
-            title: annonce.title,
+            timestamp: Date.now(),
+            title: '',
             description: annonceJs.description,
             departement: annonce.departement,
             photos: annonce.photos,
@@ -98,7 +99,7 @@ export class SeLogerAggregator implements IAggregator {
                     let resultats = $('.liste_resultat').find('.c-pa-list .c-pa-link');
 
                     for (let i = 0; i < resultats.length; i++) {
-                        let annonceUrl = resultats[i].attribs['href'].split("?")[0]
+                        let annonceUrl = resultats[i].attribs['href'].split('?')[0]
                         appartIds.push(encodeURIComponent(annonceUrl));
                     }
 
@@ -113,8 +114,8 @@ export class SeLogerAggregator implements IAggregator {
 
     private GetDetailUrl(id: string) { return `http://www.seloger.com/detail,json,caracteristique_bien.json?idannonce=${id}` }
 
-    private async GetAnnonce(url: string): Promise<IAppart> {
-        return new Promise<IAppart>((resolve, reject) => {
+    private async GetAnnonce(url: string): Promise<{departement: string, photos: string[], surfaceArea: number, url: string }> {
+        return new Promise<{departement: string, photos: string[], surfaceArea: number, url: string }>((resolve, reject) => {
             request(url, this.getRequestOptions(), (error, response, body) => {
                 if (error) {
                     console.error(`${moment().format()}: Error querying SeLoger in GetAnnonce for url ${url}: ${error}`);
@@ -146,17 +147,10 @@ export class SeLogerAggregator implements IAggregator {
                     }
 
                     resolve({
-                        title: "",
                         departement: departement,
                         photos: photos.filter((v,i) => photos.indexOf(v) === i), // Remove doubles
                         surfaceArea: Number(surfaceArea),
-                        url: url,
-                        description: undefined,
-                        price: undefined,
-                        adCreatedByPro: undefined,
-                        id: undefined,
-                        origin: undefined,
-                        notes: null
+                        url: url
                     });
                 } catch(e) {
                     console.error(`${moment().format()}: Error parsing SeLoger in GetAnnonce`, url, e);
@@ -167,8 +161,8 @@ export class SeLogerAggregator implements IAggregator {
         });
     }
 
-    private async GetAnnonceJs(id: string): Promise<IAppart> {
-         return new Promise<IAppart>((resolve, reject) => {
+    private async GetAnnonceJs(id: string): Promise<{description: string, price: number}> {
+         return new Promise<{description: string, price: number}>((resolve, reject) => {
             let url = this.GetDetailUrl(id);
             request(url, this.getRequestOptions(), (error, response, body) => {
                 let resp: any;
@@ -182,15 +176,6 @@ export class SeLogerAggregator implements IAggregator {
                     resolve({
                         description: resp.descriptif,
                         price: resp.infos_acquereur.prix.prix,
-                        title:  undefined,
-                        departement:  undefined,
-                        photos:  undefined,
-                        surfaceArea:  undefined,
-                        url:  undefined,
-                        adCreatedByPro: undefined,
-                        id: undefined,
-                        origin: undefined,
-                        notes: null
                     });
                 } catch(e) {
                     console.error(`${moment().format()}: Error parsing SeLoger in GetAnnonceJs`, url, e);
