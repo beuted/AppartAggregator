@@ -20,6 +20,9 @@
           <img class="panel-pictures-box-item" v-for="(picture, index) in annonce.photos" v-bind:src="picture" v-bind:key="index">
         </div>
       </div>
+      <div class="panel-body-date">
+        {{formatDate(annonce.timestamp)}}
+      </div>
       <div class="panel-body-notes">
         <textarea v-if="notesActivated" class="panel-body-notes-text" maxlength=3000 v-model="notes"></textarea>
         <button v-if="!notesActivated" class="panel-body-notes-button" v-on:click="InitAnnonceNotes()"><i class="fa fa-pencil" aria-hidden="true"></i></button>
@@ -32,6 +35,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import moment from 'moment';
 
 @Component
 export default class Annonce extends Vue {
@@ -80,6 +84,10 @@ export default class Annonce extends Vue {
 
   public get HasNoteChanged() {
     return this.notes != this.annonce.notes;
+  }
+
+  public formatDate(ts :number): string {
+    return moment(ts).fromNow();
   }
 }
 </script>
@@ -132,6 +140,12 @@ export default class Annonce extends Vue {
     float:left;
   }
 
+  .panel-body-date {
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 5px;
+  }
   .panel-body-notes {
     margin-top: 15px;
   }
